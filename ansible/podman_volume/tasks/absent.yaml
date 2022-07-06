@@ -1,0 +1,10 @@
+---
+- name: Check volume type
+  ansible.builtin.fail:
+    msg: "Allowed volume types are: 'local', 'zfs' or 's3'"
+  when: >
+    (volume_type != "local") and
+    (volume_type != "zfs") and
+    (volume_type != "s3")
+- name: Destroy volume
+  ansible.builtin.include_tasks: "absent-{{ volume_type }}.yaml"

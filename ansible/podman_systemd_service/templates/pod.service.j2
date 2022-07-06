@@ -1,0 +1,21 @@
+[Unit]
+Description=Podman pod {{ pod_name }}
+Wants=network-online.target
+After=network-online.target
+RequiresMountsFor=/var/lib/containers/storage
+# Add containers in override.conf
+#Requires=
+#Before=
+
+[Service]
+Environment=PODMAN_SYSTEMD_UNIT=%n
+Restart=on-failure
+TimeoutStopSec=70
+ExecStart=/usr/bin/podman start {{ pod_name }}-infra
+ExecStop=/usr/bin/podman stop -t 10 {{ pod_name }}-infra
+ExecStopPost=/usr/bin/podman stop -t 10 {{ pod_name }}-infra
+PIDFile=/run/containers/pids/{{ pod_name }}-infra.pid
+Type=forking
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,15 @@
+---
+- name: Create podman pod
+  containers.podman.podman_pod:
+    name: "{{ pod_name }}"
+    state: created
+    infra_name: "{{ pod_name + '-infra' }}"
+    infra_conmon_pidfile: "/run/containers/pids/{{ pod_name + '-infra' }}.pid"
+    publish: "{{ pod_publish if pod_publish is defined else [] }}"
+- name: Create podman pod systemd service
+  ansible.builtin.include_role:
+    name: podman_systemd_service
+    tasks_from: present
+  vars:
+    systemd_service_name: "{{ pod_name }}"
+    systemd_service_type: pod

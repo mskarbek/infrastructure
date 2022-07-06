@@ -1,0 +1,18 @@
+[
+{% if container_info.containers[0].Mounts is defined %}
+{% for item in container_info.containers[0].Mounts %}
+{% if item.Type == "volume"%}
+{% if volume_info.results[0] is defined %}
+{% for volume in volume_info.results %}
+{% if item.Name == volume.volumes[0].Name %}
+  {
+    name: {{ item.Name }},
+    type: {{ volume.volumes[0].Labels.type }}
+  }{% if not loop.last %},{% endif %}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif %}
+]

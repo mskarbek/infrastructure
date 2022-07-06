@@ -1,0 +1,124 @@
+default:
+  tags:
+    - buildah
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_PIPELINE_SOURCE == "web"
+    - if: $CI_PIPELINE_SOURCE == "trigger"
+    - if: $CI_PIPELINE_SOURCE == "pipeline"
+
+stages:
+  - build
+  - deploy
+  - clean
+
+.before_script_meta_template: &before_script_meta_content
+  before_script:  
+    # downlowad meta repo
+    - BASE_URL=`printf $CI_REPOSITORY_URL | sed "s;\/*$CI_PROJECT_PATH.*;;"`
+    - META_URL="$BASE_URL/containers/meta.git"
+    - REPO_DIR=../meta
+    - rm -fr $REPO_DIR
+    - git clone $META_URL $REPO_DIR
+    # source meta
+    - source ../meta/common.sh
+    # login to registry
+    - skopeo_login
+
+.before_script_ansible_template: &before_script_ansible_content
+  before_script:  
+    # downlowad meta repo
+    - BASE_URL=`printf ${CI_REPOSITORY_URL} | sed "s;\/*${CI_PROJECT_PATH}.*;;"`
+    - ANSIBLE_URL="${BASE_URL}/infrastructure/ansible.git"
+    - TMP_DIR=/tmp/ci-pipeline-${CI_PIPELINE_ID}
+    - git clone ${ANSIBLE_URL} ${TMP_DIR}/ansible
+    - mkdir -v ${TMP_DIR}/ssh
+    - printf $SSH_KEY | base64 -d - > $TMP_DIR/ssh/id_ed25519
+    - ssh-keyscan -t ssh-ed25519 10.8.0.22 > $TMP_DIR/ssh/known_hosts
+    - ssh-keyscan -t ssh-ed25519 10.8.0.66 >> $TMP_DIR/ssh/known_hosts
+    - printf $ANSIBLE_VAULT_PASSWORD > $TMP_DIR/ssh/vault_pass
+    - chmod 0700 $TMP_DIR/ssh
+    - chmod 0400 $TMP_DIR/ssh/id_ed25519
+    - chmod 0600 $TMP_DIR/ssh/known_hosts
+    - chmod 0600 $TMP_DIR/ssh/vault_pass
+    # rsync roles
+    - rsync -a ${TMP_DIR}/ansible/roles/ ./ansible/roles/
+    # login to registry
+    - skopeo login -u ${OCI_REGISTRY_USER} -p ${OCI_REGISTRY_PASSWORD} ${OCI_REGISTRY_URL}
+
+.after_script_template: &after_script_content
+  after_script:
+    - rm -rf /tmp/ci-pipeline-${CI_PIPELINE_ID}
+
+generate-tag:
+  stage: build
+  <<: *before_script_meta_content
+  script:
+    # generate tag
+    - export TAG=$(bash ../meta/tag.sh)
+    - printf "TAG=$TAG" > ./build.env
+    - echo -e "${TXT_YELLOW}new tag ${TAG}${TXT_CLEAR}"
+  artifacts:
+    reports:
+      dotenv: ./build.env
+
+build-application:
+  stage: build
+  tags:
+    - podman
+  <<: *before_script_meta_content
+  script:
+    - echo -e "${TXT_YELLOW}building application in version ${APPLICATION_TAG}${TXT_CLEAR}"
+    # tag repo
+    - PUSH_URL=`printf ${CI_REPOSITORY_URL} | sed "s;:\/\/.*@;:\/\/oauth2:${SERVICES_CI_TOKEN}@;"`
+    - git remote add origin-tag ${PUSH_URL}
+    - git tag v${APPLICATION_TAG}
+    - git push -o ci.skip origin-tag --tags
+  variables:
+    APPLICATION_TAG: $TAG
+  needs:
+    - generate-tag
+
+build-image:
+  stage: build
+  <<: *before_script_meta_content
+  script:
+    - echo -e "${TXT_YELLOW}building image in version ${IMAGE_TAG}${TXT_CLEAR}"
+    # build image
+    - ln -s ../meta ./meta
+    - pushd container; ./build.sh latest; popd
+    # push image
+    - skopeo_copy services/service1 ${IMAGE_TAG}
+  variables:
+    IMAGE_TAG: $TAG
+  needs:
+    - generate-tag
+    - build-application
+
+deploy-image:
+  stage: deploy
+  tags:
+    - podman
+  <<: *before_script_ansible_content
+  script: |
+    podman run\
+     -e ANSIBLE_FORCE_COLOR=True\
+     -v $TMP_DIR/ssh:/root/.ssh:ro,z\
+     -v $(pwd):/root/workspace:z\
+     -w /root/workspace/ansible\
+     --init\
+     --rm $OCI_REGISTRY_URL/bootstrap/base/ansible:latest\
+     ansible-playbook\
+     --vault-password-file ~/.ssh/vault_pass\
+     --extra-vars "oci_registry_url=${OCI_REGISTRY_URL} image_tag=${IMAGE_TAG}"\
+     -vvv\
+     -i inventory.yaml\
+     service1.yaml
+  <<: *after_script_content
+  variables:
+    IMAGE_TAG: $TAG
+  needs:
+    - generate-tag
+    - build-image

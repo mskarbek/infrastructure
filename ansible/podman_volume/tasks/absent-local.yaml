@@ -1,0 +1,5 @@
+---
+- name: Destroy local volume
+  containers.podman.podman_volume:
+    state: absent
+    name: "{{ volume_name }}"

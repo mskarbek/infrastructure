@@ -1,0 +1,65 @@
+---
+argument_specs:
+  present:
+    short_description: Create podman container
+    options:
+      container_name:
+        type: str
+        required: true
+        description: Container name
+      container_pod:
+        type: str
+        required: false
+        description: Container pod name
+      container_image:
+        type: str
+        required: true
+        description: Container image
+      container_command:
+        type: raw
+        required: false
+        description: Container command
+      container_catatonit:
+        type: bool
+        required: true
+        description: Container catatonit use
+      container_secrets:
+        type: list
+        elements: dict
+        required: false
+        description: List of container secrets
+      container_volumes:
+        type: list
+        elements: dict
+        required: false
+        description: List of container volumes
+      container_publis:
+        type: list
+        elements: str
+        required: false
+        description: List of container ports
+  absent:
+    short_description: Destroy podman Container
+    options:
+      container_name:
+        type: str
+        required: true
+        description: Container name
+      remove_volumes:
+        type: bool
+        required: true
+        description: Destroy volumes with container
+  started:
+    short_description: Start podman Container
+    options:
+      container_name:
+        type: str
+        required: true
+        description: Container name
+  stopped:
+    short_description: Stop podman Container
+    options:
+      container_name:
+        type: str
+        required: true
+        description: Container name

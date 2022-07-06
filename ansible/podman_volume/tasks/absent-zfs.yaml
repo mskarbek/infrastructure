@@ -1,0 +1,9 @@
+---
+- name: Destroy zfs volume
+  containers.podman.podman_volume:
+    state: absent
+    name: "{{ volume_name }}"
+- name: Destroy zfs volume dataset
+  community.general.zfs:
+    name: "{{ zfs_pool }}/datafs/var/lib/volumes/{{ volume_name }}"
+    state: absent

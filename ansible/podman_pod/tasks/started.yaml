@@ -1,0 +1,7 @@
+---
+- name: Start podman pod
+  ansible.builtin.include_role:
+    name: podman_systemd_service
+    tasks_from: started
+  vars:
+    systemd_service_name: "{{ pod_name }}"

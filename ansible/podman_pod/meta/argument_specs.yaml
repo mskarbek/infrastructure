@@ -1,0 +1,35 @@
+---
+argument_specs:
+  present:
+    short_description: Crete podman pod
+    options:
+      pod_name:
+        type: str
+        required: true
+        description: Pod name
+      pod_publis:
+        type: list
+        elements: str
+        required: false
+        description: List of pod ports
+  absent:
+    short_description: Destroy podman pod
+    options:
+      pod_name:
+        type: str
+        required: true
+        description: Pod name
+  started:
+    short_description: Start podman pod
+    options:
+      pod_name:
+        type: str
+        required: true
+        description: Pod name
+  stopped:
+    short_description: Stop podman pod
+    options:
+      pod_name:
+        type: str
+        required: true
+        description: Pod name

@@ -1,0 +1,59 @@
+---
+- name: Create podman secret
+  ansible.builtin.include_role:
+    name: podman_secret
+    tasks_from: present
+  vars:
+    secret_name: "{{ container_name + '-' + container_secret_item.container_secret_name }}"
+    secret_data: "{{ container_secret_item.container_secret_data }}"
+  loop: "{{ container_secrets if container_secrets is defined and container_secrets is iterable else [] }}"
+  when: container_secret_item.container_secret_name is defined
+  loop_control:
+    loop_var: container_secret_item
+- name: Print podman volume
+  ansible.builtin.debug:
+    msg:
+      volume_name: "{{ container_name + container_volume_item.container_volume_mountpoint|replace('/', '-') }}"
+      volume_mountpoint: "{{ container_volume_item.container_volume_mountpoint }}"
+      volume_type: "{{ container_volume_item.container_volume_type }}"
+      volume_files: "{{ container_volume_item.container_volume_files if container_volume_item.container_volume_files is defined and container_volume_item.container_volume_files is iterable else {} }}"
+  loop: "{{ container_volumes if container_volumes is defined and container_volumes is iterable else [] }}"
+  loop_control:
+    loop_var: container_volume_item
+  tags:
+    - never
+    - debug
+- name: Create podman volume
+  ansible.builtin.include_role:
+    name: podman_volume
+    tasks_from: present
+  vars:
+    volume_name: "{{ container_name + container_volume_item.container_volume_mountpoint|replace('/', '-') }}"
+    volume_mountpoint: "{{ container_volume_item.container_volume_mountpoint }}"
+    volume_type: "{{ container_volume_item.container_volume_type }}"
+    volume_files: "{{ container_volume_item.container_volume_files if container_volume_item.container_volume_files is defined and container_volume_item.container_volume_files is iterable else {} }}"
+  loop: "{{ container_volumes if container_volumes is defined and container_volumes is iterable else [] }}"
+  loop_control:
+    loop_var: container_volume_item
+- name: Create podman container
+  containers.podman.podman_container:
+    state: created
+    name: "{{ container_name }}"
+    pod: "{{ container_pod }}"
+    conmon_pidfile: "/run/containers/pids/{{ container_name }}.pid"
+    image: "{{ container_image }}"
+    init: "{{ container_catatonit }}"
+    command: "{{ container_command if container_command is defined else [] }}"
+    mount: "{{ container_mount if container_mount is defined else [] }}"
+    secrets: "{{ lookup('template', 'present-secrets.yaml.j2') | from_yaml }}"
+    volumes: "{{ lookup('template', 'present-volumes.yaml.j2') | from_yaml }}"
+    publish: "{{ container_publish if container_publish is defined else [] }}"
+    labels:
+      name.skarbek.lab.type: "{{ container_type if container_type is defined else 'app' }}"
+- name: Create podman container systemd service
+  ansible.builtin.include_role:
+    name: podman_systemd_service
+    tasks_from: present
+  vars:
+    systemd_service_name: "{{ container_name }}"
+    systemd_service_type: container

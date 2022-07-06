@@ -1,0 +1,15 @@
+---
+- name: Create directory hierarchy
+  ansible.builtin.file:
+    state: directory
+    dest: "{{ '/var/lib/volumes/' + volume_name + '/_data' + dest|dirname }}"
+    owner: root
+    group: root
+    mode: "0755"
+- name: Create file on podman volume
+  ansible.builtin.template:
+    src: "{{ src }}"
+    dest: "/var/lib/volumes/{{ volume_name }}/_data{{ dest }}"
+    owner: root
+    group: root
+    mode: "0644"

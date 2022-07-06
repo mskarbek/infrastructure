@@ -1,0 +1,21 @@
+---
+argument_specs:
+  main:
+    short_description: Create file on podman volume
+    options:
+      src:
+        type: str
+        required: true
+        description: Template source file
+      dest:
+        type: str
+        required: true
+        description: Template destination file
+      volume_name:
+        type: str
+        required: true
+        description: Volume name
+      volume_type:
+        type: str
+        required: true
+        description: Volume type

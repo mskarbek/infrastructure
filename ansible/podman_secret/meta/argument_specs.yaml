@@ -1,0 +1,20 @@
+---
+argument_specs:
+  present:
+    short_description: Create podman secret
+    options:
+      secret_name:
+        type: str
+        required: true
+        description: Secret name
+      secret_data:
+        type: str
+        required: true
+        description: Secret data
+  absent:
+    short_description: Destroy podman secret
+    options:
+      secret_name:
+        type: str
+        required: true
+        description: Secret name

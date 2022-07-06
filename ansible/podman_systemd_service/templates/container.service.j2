@@ -1,0 +1,22 @@
+[Unit]
+Description=Podman container {{ container_name }}
+Wants=network-online.target
+After=network-online.target
+RequiresMountsFor=/run/containers/storage
+RequiresMountsFor=/var/lib/containers/storage
+RequiresMountsFor=/var/lib/volumes/storage
+BindsTo={{ container_pod }}.service
+After={{ container_pod }}.service
+
+[Service]
+Environment=PODMAN_SYSTEMD_UNIT=%n
+Restart=always
+TimeoutStopSec=70
+ExecStart=/usr/bin/podman start {{ container_name }}
+ExecStop=/usr/bin/podman stop -t 10 {{ container_name }}
+ExecStopPost=/usr/bin/podman stop -t 10 {{ container_name }}
+PIDFile=/run/containers/pids/{{ container_name }}.pid
+Type=forking
+
+[Install]
+WantedBy=default.target

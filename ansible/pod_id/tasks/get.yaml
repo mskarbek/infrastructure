@@ -1,0 +1,44 @@
+---
+- name: Get service ids
+  local_action:
+    module: ansible.builtin.set_fact
+    past_id: "{{ lookup('consul_kv', env + '/services/' + service_name + '/past_id', host=consul_host) }}"
+    current_id: "{{ lookup('consul_kv', env + '/services/' + service_name + '/current_id', host=consul_host) }}"
+    failed_id: "{{ lookup('consul_kv', env + '/services/' + service_name + '/failed_id', host=consul_host) }}"
+- name: Generate future id
+  local_action:
+    module: ansible.builtin.set_fact
+    future_id: "{{ deployment_id if deployment_id is defined else lookup('pipe', 'cat /proc/sys/kernel/random/uuid')[:8] }}"
+- name: Set deployment id
+  local_action:
+    module: ansible.builtin.set_fact
+    deployment_id: "{{ future_id }}"
+- name: Set remote future id
+  local_action:
+    module: community.general.consul_kv
+    host: "{{ consul_host }}"
+    key: "{{ env + '/services/' + service_name + '/future_id' }}"
+    value: "{{ future_id }}"
+- name: Create past names
+  local_action:
+    module: ansible.builtin.set_fact
+    past_pod_name: "{{ env + '-' + service_name  + '-' +  past_id }}"
+    past_app_container_name: "{{ env + '-' + service_name  + '-' +  past_id + '-app' }}"
+    past_mesh_container_name: "{{ env + '-' + service_name  + '-' +  past_id + '-mesh' }}"
+    past_shell_container_name: "{{ env + '-' + service_name  + '-' +  past_id + '-shell' }}"
+  when: past_id != []
+- name: Create current names
+  local_action:
+    module: ansible.builtin.set_fact
+    current_pod_name: "{{ env + '-' + service_name  + '-' +  current_id }}"
+    current_app_container_name: "{{ env + '-' + service_name  + '-' +  current_id + '-app' }}"
+    current_mesh_container_name: "{{ env + '-' + service_name  + '-' +  current_id + '-mesh' }}"
+    current_shell_container_name: "{{ env + '-' + service_name  + '-' +  current_id + '-shell' }}"
+  when: current_id != []
+- name: Create future names
+  local_action:
+    module: ansible.builtin.set_fact
+    future_pod_name: "{{ env + '-' + service_name  + '-' +  future_id }}"
+    future_app_container_name: "{{ env + '-' + service_name  + '-' +  future_id + '-app' }}"
+    future_mesh_container_name: "{{ env + '-' + service_name  + '-' +  future_id + '-mesh' }}"
+    future_shell_container_name: "{{ env + '-' + service_name  + '-' +  future_id + '-shell' }}"

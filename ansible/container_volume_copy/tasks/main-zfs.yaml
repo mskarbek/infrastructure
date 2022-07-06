@@ -1,0 +1,34 @@
+---
+- name: Create temporary file
+  ansible.builtin.tempfile:
+    state: file
+    suffix: -fstab
+  register: tmp_fstab
+- name: Mount volume dataset
+  ansible.posix.mount:
+    state: mounted
+    path: "/var/lib/volumes/{{ volume_name }}/_data"
+    src: "{{ zfs_pool }}/datafs/var/lib/volumes/{{ volume_name }}"
+    fstab: "{{ tmp_fstab.path }}"
+    fstype: zfs
+- name: Create directory hierarchy
+  ansible.builtin.file:
+    state: directory
+    dest: "{{ '/var/lib/volumes/' + volume_name + '/_data' + dest|dirname }}"
+    owner: root
+    group: root
+    mode: "0755"
+- name: Copy file to podman volume
+  ansible.builtin.copy:
+    src: "{{ src }}"
+    dest: "/var/lib/volumes/{{ volume_name }}/_data{{ dest }}"
+    owner: root
+    group: root
+    mode: "0644"
+- name: Unmount volume dataset
+  ansible.posix.mount:
+    state: unmounted
+    path: "/var/lib/volumes/{{ volume_name }}/_data"
+    src: "{{ zfs_pool }}/datafs/var/lib/volumes/{{ volume_name }}"
+    fstab: "{{ tmp_fstab.path }}"
+    fstype: zfs

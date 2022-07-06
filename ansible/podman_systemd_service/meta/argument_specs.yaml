@@ -1,0 +1,50 @@
+---
+argument_specs:
+  present:
+    short_description: Create podman systemd service
+    options:
+      systemd_service_name:
+        type: str
+        required: true
+        description: Systemd service name
+      systemd_service_type:
+        type: str
+        required: true
+        description: Systemd service type
+      pod_name:
+        type: str
+        # `required` should be true but since I can't have mutualy exlusive args here we are
+        # but if this is not defined at this point something bad already happened
+        required: false
+        description: Podman pod name for pod template
+      container_name:
+        type: str
+        # same as above
+        required: false
+        description: Podman container name for container template
+      container_pod:
+        type: str
+        # same as above
+        required: false
+        description: Podman pod name for container template
+  absent:
+    short_description: Destroy podman systemd service
+    options:
+      systemd_service_name:
+        type: str
+        required: true
+        description: Systemd service name
+  started:
+    short_description: Start podman systemd service
+    options:
+      systemd_service_name:
+        type: str
+        required: true
+        description: Systemd service name
+  stopped:
+    short_description: Stop podman systemd service
+    options:
+      systemd_service_name:
+        type: str
+        required: true
+        description: Systemd service name

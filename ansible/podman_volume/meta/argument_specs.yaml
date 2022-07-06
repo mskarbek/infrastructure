@@ -1,0 +1,28 @@
+---
+argument_specs:
+  present:
+    short_description: Create podman volume
+    options:
+      volume_mountpoint:
+        type: str
+        required: true
+        description: Volume mountpoint
+      volume_type:
+        type: str
+        required: true
+        description: Volume type
+      volume_files:
+        type: dict
+        required: false
+        description: Volume files
+  absent:
+    short_description: Destroy podman volume
+    options:
+      volume_name:
+        type: str
+        required: true
+        description: Volume name
+      volume_type:
+        type: str
+        required: true
+        description: Volume type

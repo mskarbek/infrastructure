@@ -1,0 +1,44 @@
+---
+- name: Get podman container info
+  containers.podman.podman_container_info:
+    name: "{{ container_name }}"
+  register: container_info
+- name: Get podman volume info
+  containers.podman.podman_volume_info:
+    name: "{{ container_volume_item.Name }}"
+  register: volume_info
+  loop: "{{ container_info.containers[0].Mounts if container_info.containers[0] is defined else [] }}"
+  loop_control:
+    loop_var: container_volume_item
+    label: "{{ container_volume_item.Name }}"
+- name: Destroy podman container
+  containers.podman.podman_container:
+    state: absent
+    name: "{{ container_name }}"
+- name: Destroy podman secret
+  ansible.builtin.include_role:
+    name: podman_secret
+    tasks_from: absent
+  vars:
+    secret_name: "{{ secret_item }}"
+  loop: "{{ lookup('template', 'absent-secrets.yaml.j2') | from_yaml }}"
+  loop_control:
+    loop_var: secret_item
+- name: Destroy podman volume
+  ansible.builtin.include_role:
+    name: podman_volume
+    tasks_from: absent
+  vars:
+    volume_name: "{{ volume_item.name }}"
+    volume_type: "{{ volume_item.type }}"
+  loop: "{{ lookup('template', 'absent-volumes.yaml.j2') | from_yaml }}"
+  loop_control:
+    loop_var: volume_item
+  when: remove_volumes is true
+- name: Destroy podman container systemd service
+  ansible.builtin.include_role:
+    name: podman_systemd_service
+    tasks_from: absent
+  vars:
+    systemd_service_name: "{{ container_name }}"
+    systemd_service_type: container

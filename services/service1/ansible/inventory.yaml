@@ -1,0 +1,18 @@
+---
+all:
+  hosts:
+    0.0.0.0:
+      ansible_connection: "ssh"
+      ansible_user: "ansible"
+      hostname: ""
+      main_ip: ""
+      zfs_pool: ""
+      grub_cmdline_linux: "psi=1"
+      cni_subnet: ""
+  vars:
+    ansible_python_interpreter: "/usr/libexec/platform-python"
+    ansible_become: true
+    ansible_become_method: "sudo"
+    ansible_become_user: "root"
+    consul_host: ""
+    env: tst
