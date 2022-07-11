@@ -1,0 +1,15 @@
+---
+- name: "Set storage configuration"
+  template:
+    src: "storage.conf.j2"
+    dest: "/etc/containers/storage.conf"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+- name: "Set containers configuration"
+  template:
+    src: "containers.conf.j2"
+    dest: "/etc/containers/containers.conf"
+    owner: "root"
+    group: "root"
+    mode: "0644"

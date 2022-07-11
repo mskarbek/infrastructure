@@ -1,0 +1,8 @@
+---
+# packages state - "present" to make sure it's instaled, "latest" if you want
+# to upgrade
+vector_packages_state: "present"
+# service state - "started" to make sure it's running, "restarted" if you want
+# to pick up new configuration
+vector_service_state: "started"
+vector_service_enabled: true

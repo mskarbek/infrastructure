@@ -1,0 +1,24 @@
+---
+# storage.conf
+podman_storage_driver: "overlay"
+
+# containers.conf
+# valid options are: "k8s-file" and "journald"
+podman_log_driver: "k8s-file"
+# valid options are: "cni" and "netavark"
+podman_network_backend: "cni"
+podman_default_network: "podman"
+# valid options are: "gzip", "zstd" and "zstd:chunked"
+podman_compression_format: "gzip"
+# valid options are: "systemd" and "cgroupfs"
+podman_cgroup_manager: "systemd"
+# valid options are: "journald", "file" and "none"
+podman_events_logger: "journald"
+# valid options are: "oci", "v2s2" and "v2s1"
+podman_image_default_format: "oci"
+podman_runtime: "crun"
+podman_volume_path: "/var/lib/containers/storage/volumes"
+
+# packages state - "present" to make sure it's instaled, "latest" if you want
+# to upgrade
+podman_packages_state: "present"

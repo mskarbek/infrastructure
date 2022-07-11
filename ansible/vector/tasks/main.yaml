@@ -1,0 +1,11 @@
+---
+# Setup/install tasks.
+- name: "Install Vector"
+  ansible.builtin.include_tasks: "setup.yaml"
+- name: "Configure Vector"
+  ansible.builtin.include_tasks: "configure.yaml"
+- name: "Ensure Vector service has selected state"
+  ansible.builtin.systemd:
+    name: "vector"
+    state: "{{ vector_service_state }}"
+    enabled: "{{ vector_service_enabled }}"

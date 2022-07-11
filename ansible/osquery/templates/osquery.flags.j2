@@ -1,0 +1,34 @@
+# Server
+--tls_hostname={{ osquery_tls_hostname }}
+{% if osquery_tls_server_certs is defined %}
+--tls_server_certs=/etc/osquery/server.pem
+{% endif %}
+# Enrollment
+--host_identifier={{ osquery_host_identifier }}
+{% if osquery_host_identifier == "specified" %}
+--specified_identifier={{ osquery_specified_identifier }}
+{% endif %}
+--enroll_secret_path=/etc/osquery/enroll_secret
+--enroll_tls_endpoint=/api/osquery/enroll
+# Configuration
+--config_plugin=tls
+--config_tls_endpoint=/api/osquery/config
+--config_refresh={{ osquery_config_refresh }}
+# Live query
+--disable_distributed={{ osquery_disable_distributed }}
+--distributed_plugin=tls
+--distributed_interval={{ osquery_distributed_interval }}
+--distributed_tls_max_attempts={{ osquery_distributed_tls_max_attempts }}
+--distributed_tls_read_endpoint=/api/osquery/distributed/read
+--distributed_tls_write_endpoint=/api/osquery/distributed/write
+# Logging
+--logger_plugin=tls
+--logger_tls_endpoint=/api/osquery/log
+--logger_tls_period={{ osquery_logger_tls_period }}
+# File carving
+--disable_carver={{ osquery_disable_carver }}
+--carver_start_endpoint=/api/osquery/carve/begin
+--carver_continue_endpoint=/api/osquery/carve/block
+--carver_block_size={{ osquery_carver_block_size }}
+# Database
+--database_path=/var/lib/osquery/db

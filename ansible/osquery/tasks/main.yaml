@@ -1,0 +1,11 @@
+---
+# Setup/install tasks.
+- name: "Install Osquery"
+  ansible.builtin.include_tasks: "setup.yaml"
+- name: "Configure Osquery"
+  ansible.builtin.include_tasks: "configure.yaml"
+- name: "Ensure Osquery service has selected state"
+  ansible.builtin.systemd:
+    name: "osqueryd"
+    state: "{{ osquery_service_state }}"
+    enabled: "{{ osquery_service_enabled }}"

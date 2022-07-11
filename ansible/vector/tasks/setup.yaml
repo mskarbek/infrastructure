@@ -1,0 +1,6 @@
+---
+- name: "Ensure Vector is installed"
+  ansible.builtin.dnf:
+    name:
+      - "vector"
+    state: "{{ vector_packages_state }}"

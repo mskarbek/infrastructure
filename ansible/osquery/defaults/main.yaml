@@ -1,0 +1,18 @@
+---
+# osquery.flags
+# valid options are: "hostname", "uuid", "instance", "ephemeral" and "specified"
+osquery_host_identifier: "hostname"
+osquery_config_refresh: 10
+osquery_disable_distributed: "false"
+osquery_distributed_interval: 10
+osquery_distributed_tls_max_attempts: 3
+osquery_logger_tls_period: 10
+osquery_disable_carver: "false"
+osquery_carver_block_size: 2000000
+# packages state - "present" to make sure it's instaled, "latest" if you want
+# to upgrade
+osquery_packages_state: "present"
+# service state - "started" to make sure it's running, "restarted" if you want
+# to pick up new configuration
+osquery_service_state: "started"
+osquery_service_enabled: true

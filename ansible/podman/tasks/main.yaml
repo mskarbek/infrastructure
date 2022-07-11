@@ -1,0 +1,6 @@
+---
+# Setup/install tasks.
+- name: "Install Podman"
+  ansible.builtin.include_tasks: "setup.yaml"
+- name: "Configure Podman"
+  ansible.builtin.include_tasks: "configure.yaml"

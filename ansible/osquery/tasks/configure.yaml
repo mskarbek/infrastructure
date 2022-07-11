@@ -1,0 +1,15 @@
+---
+- name: "Set flags configuration"
+  template:
+    src: "osquery.flags.j2"
+    dest: "/etc/containers/storage.conf"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+- name: "Set enroll secret"
+  template:
+    src: "enroll_secret.j2"
+    dest: "/etc/osquery/enroll_secret"
+    owner: "root"
+    group: "root"
+    mode: "0640"

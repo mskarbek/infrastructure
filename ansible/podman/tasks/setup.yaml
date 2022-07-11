@@ -1,0 +1,8 @@
+---
+- name: "Ensure Podman is installed"
+  ansible.builtin.dnf:
+    name:
+      - "podman"
+      - "crun"
+      - "containernetworking-plugins"
+    state: "{{ podman_packages_state }}"
