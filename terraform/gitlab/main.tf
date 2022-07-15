@@ -2,7 +2,7 @@ terraform {
     required_providers {
         gitlab = {
             source  = "gitlabhq/gitlab"
-            version = "3.16.0"
+            version = "3.16.1"
         }
     }
 }
@@ -108,6 +108,13 @@ resource "gitlab_group_variable" "containers_repository_password" {
   group         = gitlab_group.containers.id
   key           = "REPOSITORY_PASSWORD"
   value         = var.repository_password
+  variable_type = "env_var"
+}
+
+resource "gitlab_group_variable" "containers_repository_raw_repo" {
+  group         = gitlab_group.containers.id
+  key           = "REPOSITORY_RAW_REPO"
+  value         = "raw-hosted-prd"
   variable_type = "env_var"
 }
 
@@ -270,7 +277,7 @@ resource "gitlab_project" "containers" {
 resource "gitlab_project_variable" "micro_internal_ca_pem" {
   project       = gitlab_project.containers["micro"].id
   key           = "INTERNAL_CA_PEM"
-  value         = filebase64("./internal-ca.pem")
+  value         = filebase64("./files/internal-ca.pem")
   variable_type = "env_var"
   protected     = true
 }
@@ -278,7 +285,7 @@ resource "gitlab_project_variable" "micro_internal_ca_pem" {
 resource "gitlab_project_variable" "nexus_keystore_pass" {
   project       = gitlab_project.containers["nexus"].id
   key           = "KEYSTORE_PASS"
-  value         = filebase64("./keystore.pass")
+  value         = filebase64("./files/keystore.pass")
   variable_type = "env_var"
   protected     = true
 }
@@ -286,7 +293,7 @@ resource "gitlab_project_variable" "nexus_keystore_pass" {
 resource "gitlab_project_variable" "nexus_keystore_p12" {
   project       = gitlab_project.containers["nexus"].id
   key           = "KEYSTORE_P12"
-  value         = filebase64("./keystore.p12")
+  value         = filebase64("./files/keystore.p12")
   variable_type = "env_var"
   protected     = true
 }
