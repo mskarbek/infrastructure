@@ -48,7 +48,7 @@ pushd ${TMP_DIR}
     else
         git clone --quiet http://gitlab-ci-token:${CI_JOB_TOKEN}@${GIT_FORGE}/infrastructure/meta.git ${REPO_DIR}
     fi
-    rsync -a --delete --exclude=".git" ${MIRROR_DIR}/meta/{common.sh} ${REPO_DIR}/
+    rsync -a --delete --exclude=".git" ${MIRROR_DIR}/meta/common.sh ${REPO_DIR}/
     pushd ${REPO_DIR}
         if [ ! -z ${CI} ]; then
             git config user.name "${GIT_NAME}"
