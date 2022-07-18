@@ -386,6 +386,7 @@ locals {
   infrastructure = toset([
     "ansible",
     "meta",
+    "playbooks",
     "terraform"
   ])
 }
