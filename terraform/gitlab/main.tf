@@ -440,9 +440,9 @@ resource "gitlab_group_variable" "infrastructure_oci_registry_password" {
 
 locals {
   infrastructure = toset([
-    "ansible",
     "meta",
     "playbooks",
+    "roles",
     "terraform"
   ])
 }
@@ -467,8 +467,8 @@ resource "gitlab_project" "infrastructure" {
   build_git_strategy            = "clone"
 }
 
-resource "gitlab_project_variable" "ansible_password" {
-  project       = gitlab_project.infrastructure["ansible"].id
+resource "gitlab_project_variable" "playbooks_ansible_vault_password" {
+  project       = gitlab_project.infrastructure["playbooks"].id
   key           = "ANSIBLE_VAULT_PASSWORD"
   value         = var.ansible_vault_password
   variable_type = "env_var"
@@ -476,10 +476,7 @@ resource "gitlab_project_variable" "ansible_password" {
   masked        = true
 }
 
-
 ######
-
-
 
 resource "gitlab_group" "services" {
   name                = "services"
