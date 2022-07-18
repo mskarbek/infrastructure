@@ -440,6 +440,7 @@ resource "gitlab_group_variable" "infrastructure_oci_registry_password" {
 
 locals {
   infrastructure = toset([
+    "inventories",
     "meta",
     "playbooks",
     "roles",

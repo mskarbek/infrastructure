@@ -1,0 +1,64 @@
+default:
+  tags:
+    - buildah
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_PIPELINE_SOURCE == "web"
+    - if: $CI_PIPELINE_SOURCE == "trigger"
+    - if: $CI_PIPELINE_SOURCE == "pipeline"
+
+stages:
+  - deploy
+
+.before_script_ansible_template: &before_script_ansible_content
+  before_script:  
+    - BASE_URL=`printf ${CI_REPOSITORY_URL} | sed "s;\/*${CI_PROJECT_PATH}.*;;"`
+    # downlowad roles repo
+    - ROLES_URL="${BASE_URL}/infrastructure/roles.git"
+    - git clone ${ROLES_URL} ./roles
+    # downlowad roles repo\
+    - INVENTORIES_URL="${BASE_URL}/infrastructure/inventories.git"
+    - git clone ${INVENTORIES_URL} ./inventories
+    # create ssh files
+    - TMP_DIR=/tmp/ci-pipeline-${CI_PIPELINE_ID}
+    - mkdir -vp ${TMP_DIR}
+    - printf $SSH_KEY | base64 -d - > $TMP_DIR/ssh/id_ed25519
+    - ssh-keyscan -t ssh-ed25519 10.8.0.22 > $TMP_DIR/ssh/known_hosts
+    - ssh-keyscan -t ssh-ed25519 10.8.0.66 >> $TMP_DIR/ssh/known_hosts
+    - chmod 0700 $TMP_DIR/
+    - chmod 0400 $TMP_DIR/id_ed25519
+    - chmod 0600 $TMP_DIR/known_hosts
+    # create ansible vault password file
+    - printf $ANSIBLE_VAULT_PASSWORD > $TMP_DIR/ssh/vault_pass
+    - chmod 0600 $TMP_DIR/vault_pass
+    # login to registry
+    - skopeo login -u ${OCI_REGISTRY_USER} -p ${OCI_REGISTRY_PASSWORD} ${OCI_REGISTRY_URL}
+
+.after_script_template: &after_script_content
+  after_script:
+    - rm -rf /tmp/ci-pipeline-${CI_PIPELINE_ID}
+
+deploy-nexus:
+  stage: deploy
+  tags:
+    - podman
+  <<: *before_script_ansible_content
+  script: |
+    podman run\
+     --env ANSIBLE_FORCE_COLOR=True\
+     --volume $TMP_DIR:/root/.ssh:ro,z\
+     --volume $(pwd):/root/workspace:z\
+     --workdir /root/workspace/ansible\
+     --init\
+     --rm $OCI_REGISTRY_URL/base/ansible:latest\
+     ansible-playbook\
+     --extra-vars "repository_url=${REPOSITORY_URL} repository_username=${REPOSITORY_USERNAME} repository_password=${REPOSITORY_PASSWORD}"\
+     --vault-password-file ~/.ssh/vault_pass\
+     -i inventories/inventory.lcl.yaml\
+     nexus.yaml
+  <<: *after_script_content
+  rules:
+    changes:
+      - nexus.yaml
