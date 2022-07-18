@@ -54,6 +54,22 @@ variable "image_bootstrap" {
   type = string
 }
 
+variable "repository_pip_trusted_host" {
+  type = string
+}
+
+variable "repository_pip_index" {
+  type = string
+}
+
+variable "repository_pip_index_url" {
+  type = string
+}
+
+variable "ci_http_proxy" {
+  type = string
+}
+
 provider "gitlab" {
   base_url  = var.gitlab_url
   token     = var.gitlab_token
@@ -272,6 +288,46 @@ resource "gitlab_project" "containers" {
   snippets_enabled              =false
   wiki_enabled                  = false
   build_git_strategy            = "clone"
+}
+
+resource "gitlab_project_variable" "ansible_ci_http_proxy" {
+  project       = gitlab_project.containers["ansible"].id
+  key           = "CI_HTTP_PROXY"
+  value         = var.ci_http_proxy
+  variable_type = "env_var"
+  protected     = true
+}
+
+resource "gitlab_project_variable" "rundeck_runner_ci_http_proxy" {
+  project       = gitlab_project.containers["rundeck-runner"].id
+  key           = "CI_HTTP_PROXY"
+  value         = var.ci_http_proxy
+  variable_type = "env_var"
+  protected     = true
+}
+
+resource "gitlab_project_variable" "python3_pip_trusted_host" {
+  project       = gitlab_project.containers["python3"].id
+  key           = "REPOSITORY_PIP_TRUSTED_HOST"
+  value         = var.repository_pip_trusted_host
+  variable_type = "env_var"
+  protected     = true
+}
+
+resource "gitlab_project_variable" "python3_pip_index" {
+  project       = gitlab_project.containers["python3"].id
+  key           = "REPOSITORY_PIP_INDEX"
+  value         = var.repository_pip_index
+  variable_type = "env_var"
+  protected     = true
+}
+
+resource "gitlab_project_variable" "python3_pip_index_url" {
+  project       = gitlab_project.containers["python3"].id
+  key           = "REPOSITORY_PIP_INDEX_URL"
+  value         = var.repository_pip_index_url
+  variable_type = "env_var"
+  protected     = true
 }
 
 resource "gitlab_project_variable" "micro_internal_ca_pem" {
