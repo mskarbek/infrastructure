@@ -1,0 +1,22 @@
+{
+  "format": "docker",
+  "type": "hosted",
+  "name": "{{ nexus_repository_name }}",
+  "online": {{ nexus_repository_online | default('true') }},
+  "storage": {
+    "blobStoreName": "{{ nexus_repository_blob_name }}",
+    "strictContentTypeValidation": {{ nexus_repository_strict_validation | default('true') }},
+    "writePolicy": "{{ nexus_repository_write_policy | default('allow') }}"
+  },
+  "cleanup": {{ nexus_repository_cleanup | default('null') }},
+  "component": {
+    "proprietaryComponents": {{ nexus_repository_proprietary_components | default('false') }}
+  },
+  "docker": {
+    "v1Enabled": {{ nexus_repository_docker_hosted_v1_enabled | default('false') }},
+    "forceBasicAuth": {{ nexus_repository_docker_hosted_force_basic_auth | default('false') }},
+    "httpPort": {{ nexus_repository_docker_hosted_http_port | default('null') }},
+    "httpsPort": {{ nexus_repository_docker_hosted_https_port | default('null') }},
+    "subdomain": {{ nexus_repository_docker_hosted_subdomain | default('null') }}
+  }
+}

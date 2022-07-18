@@ -1,0 +1,78 @@
+---
+# TODO: Add file repository type
+# TODO: Refactor templates to be universal
+- name: "Check if repository exists"
+  ansible.builtin.uri:
+    url: "{{ nexus_repository_repository_url }}/service/rest/v1/repositories/{{ nexus_repository_name }}"
+    url_username: "{{ nexus_repository_repository_username }}"
+    url_password: "{{ nexus_repository_repository_password }}"
+    method: "GET"
+    force_basic_auth: true
+    status_code:
+      - 200
+      - 404
+  register: __nexus_repository_check
+- name: "Create temporary file"
+  ansible.builtin.tempfile:
+    state: "file"
+    suffix: "repository"
+  register: __nexus_repository_tempfile
+  when:
+    - nexus_repository_state == 'present'
+- name: "Generate repository configuration"
+  ansible.builtin.template:
+    src: "{{ nexus_repository_format }}-{{ nexus_repository_type }}.json.j2"
+    dest: "{{ __nexus_repository_tempfile.path }}"
+  when:
+    - nexus_repository_state == 'present'
+- name: "Read repository configuration"
+  ansible.builtin.slurp:
+    src: "{{ __nexus_repository_tempfile.path }}"
+  register: __nexus_repository_slurp
+  when:
+    - nexus_repository_state == 'present'
+- name: "Set repository configuration as variable"
+  ansible.builtin.set_fact:
+    __nexus_repository_repository_body: "{{ __nexus_repository_slurp.content | b64decode }}"
+  when:
+    - nexus_repository_state == 'present'
+- name: "Remove temporary file"
+  ansible.builtin.file:
+    dest: "{{ __nexus_repository_tempfile.path }}"
+    state: "absent"
+- name: "Create repository"
+  ansible.builtin.uri:
+    url: "{{ nexus_repository_repository_url }}/service/rest/v1/repositories/{{ nexus_repository_format }}/{{ nexus_repository_type }}"
+    url_username: "{{ nexus_repository_repository_username }}"
+    url_password: "{{ nexus_repository_repository_password }}"
+    method: "POST"
+    force_basic_auth: true
+    status_code: 201
+    body_format: "json"
+    body: "{{ __nexus_repository_repository_body | tojson }}"
+  when:
+    - nexus_repository_state == 'present'
+    - __nexus_repository_check.status != 200
+- name: "Update repository"
+  ansible.builtin.uri:
+    url: "{{ nexus_repository_repository_url }}/service/rest/v1/repositories/{{ nexus_repository_format }}/{{ nexus_repository_type }}/{{ nexus_repository_name }}"
+    url_username: "{{ nexus_repository_repository_username }}"
+    url_password: "{{ nexus_repository_repository_password }}"
+    method: "PUT"
+    force_basic_auth: true
+    status_code: 204
+    body_format: "json"
+    body: "{{ __nexus_repository_repository_body | tojson }}"
+  when:
+    - nexus_repository_state == 'present'
+    - __nexus_repository_check.status == 200
+- name: "Remove repository"
+  ansible.builtin.uri:
+    url: "{{ nexus_repository_repository_url }}/service/rest/v1/repositories/{{ nexus_repository_name }}"
+    url_username: "{{ nexus_repository_repository_username }}"
+    url_password: "{{ nexus_repository_repository_password }}"
+    method: "DELETE"
+    force_basic_auth: true
+  when:
+    - nexus_repository_state == 'absent'
+    - __nexus_repository_check.status == 200

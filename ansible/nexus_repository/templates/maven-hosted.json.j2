@@ -1,0 +1,18 @@
+{
+  "name": "{{ nexus_repository_name }}",
+  "online": {{ nexus_repository_online | default('true') }},
+  "storage": {
+    "blobStoreName": "{{ nexus_repository_blob_name }}",
+    "strictContentTypeValidation": {{ nexus_repository_strict_validation | default('true') }},
+    "writePolicy": "{{ nexus_repository_write_policy | default('allow') }}"
+  },
+  "cleanup": {{ nexus_repository_cleanup | default('null') }},
+  "component": {
+    "proprietaryComponents": {{ nexus_repository_proprietary_components | default('false') }}
+  },
+  "maven": {
+    "versionPolicy": "{{ nexus_repository_maven_version_policy | default('RELEASE') }}",
+    "layoutPolicy": "{{ nexus_repository_maven_layout_policy | default('STRICT') }}",
+    "contentDisposition": "{{ nexus_repository_maven_content_disposition | default('INLINE') }}"
+  }
+}

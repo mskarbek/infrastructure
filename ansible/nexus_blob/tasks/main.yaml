@@ -1,0 +1,78 @@
+---
+# TODO: Add file blob type
+# TODO: Refactor templates to be universal
+- name: "Check if blob store exists"
+  ansible.builtin.uri:
+    url: "{{ nexus_blob_repository_url }}/service/rest/v1/blobstores/s3/{{ nexus_blob_name }}"
+    url_username: "{{ nexus_blob_repository_username }}"
+    url_password: "{{ nexus_blob_repository_password }}"
+    method: "GET"
+    force_basic_auth: true
+    status_code:
+      - 200
+      - 400
+  register: __nexus_blob_check
+- name: "Create temporary file"
+  ansible.builtin.tempfile:
+    state: "file"
+    suffix: "blob"
+  register: __nexus_blob_tempfile
+  when:
+    - nexus_blob_state == 'present'
+- name: "Generate blob configuration"
+  ansible.builtin.template:
+    src: "blob-s3.json.j2"
+    dest: "{{ __nexus_blob_tempfile.path }}"
+  when:
+    - nexus_blob_state == 'present'
+- name: "Read blob configuration"
+  ansible.builtin.slurp:
+    src: "{{ __nexus_blob_tempfile.path }}"
+  register: __nexus_blob_slurp
+  when:
+    - nexus_blob_state == 'present'
+- name: "Set blob configuration as variable"
+  ansible.builtin.set_fact:
+    __nexus_blob_blob_body: "{{ __nexus_blob_slurp.content | b64decode }}"
+  when:
+    - nexus_blob_state == 'present'
+- name: "Remove temporary file"
+  ansible.builtin.file:
+    dest: "{{ __nexus_blob_tempfile.path }}"
+    state: "absent"
+- name: "Create blobl store"
+  ansible.builtin.uri:
+    url: "{{ nexus_blob_repository_url }}/service/rest/v1/blobstores/s3"
+    url_username: "{{ nexus_blob_repository_username }}"
+    url_password: "{{ nexus_blob_repository_password }}"
+    method: "POST"
+    force_basic_auth: true
+    status_code: 201
+    body_format: "json"
+    body: "{{ __nexus_blob_blob_body | tojson }}"
+  when:
+    - nexus_blob_state == 'present'
+    - __nexus_blob_check.status != 200
+- name: "Update blobl store"
+  ansible.builtin.uri:
+    url: "{{ nexus_blob_repository_url }}/service/rest/v1/blobstores/s3/{{ nexus_blob_name }}"
+    url_username: "{{ nexus_blob_repository_username }}"
+    url_password: "{{ nexus_blob_repository_password }}"
+    method: "PUT"
+    force_basic_auth: true
+    status_code: 204
+    body_format: "json"
+    body: "{{ __nexus_blob_blob_body | tojson }}"
+  when:
+    - nexus_blob_state == 'present'
+    - __nexus_blob_check.status == 200
+- name: "Remove blobl store"
+  ansible.builtin.uri:
+    url: "{{ nexus_blob_repository_url }}/service/rest/v1/blobstores/{{ nexus_blob_name }}"
+    url_username: "{{ nexus_blob_repository_username }}"
+    url_password: "{{ nexus_blob_repository_password }}"
+    method: "DELETE"
+    force_basic_auth: true
+  when:
+    - nexus_blob_state == 'absent'
+    - __nexus_blob_check.status == 200

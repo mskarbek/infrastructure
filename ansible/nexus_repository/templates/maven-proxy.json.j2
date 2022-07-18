@@ -1,0 +1,31 @@
+{
+  "name": "{{ nexus_repository_name }}",
+  "online": {{ nexus_repository_online | default('true') }},
+  "storage": {
+    "blobStoreName": "{{ nexus_repository_blob_name }}",
+    "strictContentTypeValidation": {{ nexus_repository_strict_validation | default('true') }}
+  },
+  "cleanup": {{ nexus_repository_cleanup | default('null') }},
+  "proxy": {
+    "remoteUrl": "{{ nexus_repository_proxy_remote_url }}",
+    "contentMaxAge": {{ nexus_repository_proxy_content_max_age | default(1440) }},
+    "metadataMaxAge": {{ nexus_repository_proxy_metadata_max_age | default(1440) }}
+  },
+  "negativeCache": {
+    "enabled": {{ nexus_repository_negative_cache_enabled | default('true') }},
+    "timeToLive": {{ nexus_repository_negative_cache_ttl | default(1440) }}
+  },
+  "httpClient": {
+    "blocked": {{ nexus_repository_http_client_blocked | default('false') }},
+    "autoBlock": {{ nexus_repository_http_client_auto_block | default('true') }},
+    "connection": {
+      "useTrustStore": {{ nexus_repository_http_client_connection_use_trust_store | default('false') }}
+    },
+    "authentication": {{ nexus_repository_http_client_authentication | default('null') }}
+  },
+  "maven": {
+    "versionPolicy": "{{ nexus_repository_maven_version_policy | default('RELEASE') }}",
+    "layoutPolicy": "{{ nexus_repository_maven_layout_policy | default('STRICT') }}",
+    "contentDisposition": "{{ nexus_repository_maven_content_disposition | default('INLINE') }}"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "{{ nexus_blob_name }}",
+  "bucketConfiguration": {
+    "bucket": {
+      "name": "{{ nexus_blob_bucket_name }}",
+      "prefix": "{{ nexus_blob_bucket_prefix | default('') }}",
+      "region": "{{ nexus_blob_bucket_region | default('eu-central-1') }}",
+      "expiration": {{ nexus_blob_bucket_expiration | default(3) }}
+    },
+    "bucketSecurity": {
+      "accessKeyId": "{{ nexus_blob_s3_access_key }}",
+      "secretAccessKey": "{{ nexus_blob_s3_secret_key }}"
+    },
+    "advancedBucketConnection": {
+      "endpoint": "{{ nexus_blob_s3_endpoint }}",
+      "forcePathStyle": {{ nexus_blob_s3_force_path_style | default('true') }}
+    }
+  }
+}

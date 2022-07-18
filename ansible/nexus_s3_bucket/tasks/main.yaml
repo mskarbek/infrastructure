@@ -1,0 +1,10 @@
+---
+- name: "Create an empty bucket"
+  amazon.aws.s3_bucket:
+    name: "{{ nexus_s3_bucket_name }}"
+    s3_url: "{{ nexus_s3_bucket_s3_endpoint }}"
+    aws_access_key: "{{ nexus_s3_bucket_s3_access_key }}"
+    aws_secret_key: "{{ nexus_s3_bucket_s3_secret_key }}"
+    state: "present"
+  when:
+    - nexus_s3_bucket_state == 'present'

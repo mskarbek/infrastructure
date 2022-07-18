@@ -1,0 +1,17 @@
+{
+  "name": "{{ nexus_repository_name }}",
+  "online": {{ nexus_repository_online | default('true') }},
+  "storage": {
+    "blobStoreName": "{{ nexus_repository_blob_name }}",
+    "strictContentTypeValidation": {{ nexus_repository_strict_validation | default('true') }},
+    "writePolicy": "{{ nexus_repository_write_policy | default('allow') }}"
+  },
+  "cleanup": {{ nexus_repository_cleanup | default('null') }},
+  "component": {
+    "proprietaryComponents": {{ nexus_repository_proprietary_components | default('false') }}
+  },
+  "yum": {
+    "repodataDepth": {{ nexus_repository_yum_hosted_repodata_depth | default(0) }},
+    "deployPolicy": "{{ nexus_repository_yum_hosted_deploy_policy | default('STRICT') }}"
+  }
+}
