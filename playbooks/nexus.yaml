@@ -1,0 +1,204 @@
+---
+- hosts: localhost
+  gather_facts: false
+  vars:
+    #repository_url: ""
+    #repository_username: ""
+    #repository_password: ""
+    #s3_endpoint: ""
+    #s3_access_key: ""
+    #s3_secret_key: ""
+  tasks:
+    - name: "Create s3 buckets"
+      ansible.builtin.include_role:
+        name: nexus_s3_bucket
+      vars:
+        nexus_s3_bucket_name: "{{ item }}"
+        nexus_s3_bucket_state: "present"
+        nexus_s3_bucket_s3_endpoint: "{{ s3_endpoint }}"
+        nexus_s3_bucket_s3_access_key: "{{ s3_access_key }}"
+        nexus_s3_bucket_s3_secret_key: "{{ s3_secret_key }}"
+      loop:
+        - "nexus-dart-proxy-pub.dev"
+        - "nexus-maven-group-all"
+        - "nexus-maven-hosted-releases"
+        - "nexus-maven-hosted-snapshots"
+        - "nexus-maven-proxy-central"
+        - "nexus-npm-proxy-npmjs.org"
+        - "nexus-oci-hosted-prd"
+        - "nexus-pypi-proxy-pypi.org"
+        - "nexus-raw-hosted-prd"
+        - "nexus-rpm-hosted-prd"
+        - "nexus-rpm-proxy-epel"
+        - "nexus-rpm-proxy-redhat"
+        - "nexus-rpm-proxy-rpmfusion"
+        - "nexus-rpm-proxy-pgdg"
+    - name: "Create blobs"
+      ansible.builtin.include_role:
+        name: nexus_blob
+      vars:
+        nexus_blob_name: "{{ item.name }}"
+        nexus_blob_state: "present"
+        nexus_blob_repository_url: "{{ repository_url }}"
+        nexus_blob_repository_username: "{{ repository_username }}"
+        nexus_blob_repository_password: "{{ repository_password }}"
+        nexus_blob_bucket_name: "{{ item.bucket_name }}"
+        nexus_blob_s3_endpoint: "{{ s3_endpoint }}"
+        nexus_blob_s3_access_key: "{{ s3_access_key }}"
+        nexus_blob_s3_secret_key: "{{ s3_secret_key }}"
+      loop:
+        - {name: "dart-proxy-pub.dev", bucket_name: "nexus-dart-proxy-pub.dev"}
+        - {name: "maven-group-all", bucket_name: "nexus-maven-group-all"}
+        - {name: "maven-hosted-releases", bucket_name: "nexus-maven-hosted-releases"}
+        - {name: "maven-hosted-snapshots", bucket_name: "nexus-maven-hosted-snapshots"}
+        - {name: "maven-proxy-central", bucket_name: "nexus-maven-proxy-central"}
+        - {name: "npm-proxy-npmjs.org", bucket_name: "nexus-npm-proxy-npmjs.org"}
+        - {name: "oci-hosted-prd", bucket_name: "nexus-oci-hosted-prd"}
+        - {name: "pypi-proxy-pypi.org", bucket_name: "nexus-pypi-proxy-pypi.org"}
+        - {name: "raw-hosted-prd", bucket_name: "nexus-raw-hosted-prd"}
+        - {name: "rpm-hosted-prd", bucket_name: "nexus-rpm-hosted-prd"}
+        - {name: "rpm-proxy-epel", bucket_name: "nexus-rpm-proxy-epel"}
+        - {name: "rpm-proxy-redhat", bucket_name: "nexus-rpm-proxy-redhat"}
+        - {name: "rpm-proxy-rpmfusion", bucket_name: "nexus-rpm-proxy-rpmfusion"}
+        - {name: "rpm-proxy-pgdg", bucket_name: "nexus-rpm-proxy-pgdg"}
+    - name: "Create oci hosted repository"
+      ansible.builtin.include_role:
+        name: nexus_repository
+      vars:
+        nexus_repository_name: "oci-hosted-prd"
+        nexus_repository_state: "present"
+        nexus_repository_format: "docker"
+        nexus_repository_type: "hosted"
+        nexus_repository_repository_url: "{{ repository_url }}"
+        nexus_repository_repository_username: "{{ repository_username }}"
+        nexus_repository_repository_password: "{{ repository_password }}"
+        nexus_repository_blob_name: "oci-hosted-prd"
+        nexus_repository_docker_hosted_http_port: 8082
+    - name: "Create raw hosted repository"
+      ansible.builtin.include_role:
+        name: nexus_repository
+      vars:
+        nexus_repository_name: "raw-hosted-prd"
+        nexus_repository_state: "present"
+        nexus_repository_format: "raw"
+        nexus_repository_type: "hosted"
+        nexus_repository_repository_url: "{{ repository_url }}"
+        nexus_repository_repository_username: "{{ repository_username }}"
+        nexus_repository_repository_password: "{{ repository_password }}"
+        nexus_repository_blob_name: "raw-hosted-prd"
+    - name: "Create rpm hosted repository"
+      ansible.builtin.include_role:
+        name: nexus_repository
+      vars:
+        nexus_repository_name: "rpm-hosted-prd"
+        nexus_repository_state: "present"
+        nexus_repository_format: "yum"
+        nexus_repository_type: "hosted"
+        nexus_repository_repository_url: "{{ repository_url }}"
+        nexus_repository_repository_username: "{{ repository_username }}"
+        nexus_repository_repository_password: "{{ repository_password }}"
+        nexus_repository_blob_name: "rpm-hosted-prd"
+        nexus_repository_yum_hosted_repodata_depth: 1
+    - name: "Create rpm proxy repositories"
+      ansible.builtin.include_role:
+        name: nexus_repository
+      vars:
+        nexus_repository_name: "{{ item.name }}"
+        nexus_repository_state: "present"
+        nexus_repository_format: "yum"
+        nexus_repository_type: "proxy"
+        nexus_repository_repository_url: "{{ repository_url }}"
+        nexus_repository_repository_username: "{{ repository_username }}"
+        nexus_repository_repository_password: "{{ repository_password }}"
+        nexus_repository_blob_name: "{{ item.blob_name }}"
+        nexus_repository_proxy_remote_url: "{{ item.proxy_remote_url }}"
+      loop:
+        - {name: "rpm-proxy-epel", blob_name: "rpm-proxy-epel", proxy_remote_url: "https://ftp.icm.edu.pl/pub/Linux/dist/epel/"}
+        - {name: "rpm-proxy-rpmfusion", blob_name: "rpm-proxy-rpmfusion", proxy_remote_url: "https://ftp.icm.edu.pl/pub/Linux/dist/rpmfusion/"}
+        - {name: "rpm-proxy-pgdg", blob_name: "rpm-proxy-pgdg", proxy_remote_url: "https://download.postgresql.org/pub/repos/yum/"}
+    - name: "Create rpm proxy repositories"
+      ansible.builtin.include_role:
+        name: nexus_repository
+      vars:
+        nexus_repository_name: "rpm-proxy-redhat"
+        nexus_repository_state: "present"
+        nexus_repository_format: "yum"
+        nexus_repository_type: "proxy"
+        nexus_repository_repository_url: "{{ repository_url }}"
+        nexus_repository_repository_username: "{{ repository_username }}"
+        nexus_repository_repository_password: "{{ repository_password }}"
+        nexus_repository_blob_name: "rpm-proxy-redhat"
+        nexus_repository_proxy_remote_url: "https://cdn.redhat.com/content/dist/"
+        nexus_repository_http_client_connection_use_trust_store: true
+    - name: "Create pypi proxy repositories"
+      ansible.builtin.include_role:
+        name: nexus_repository
+      vars:
+        nexus_repository_name: "pypi-proxy-pypi.org"
+        nexus_repository_state: "present"
+        nexus_repository_format: "pypi"
+        nexus_repository_type: "proxy"
+        nexus_repository_repository_url: "{{ repository_url }}"
+        nexus_repository_repository_username: "{{ repository_username }}"
+        nexus_repository_repository_password: "{{ repository_password }}"
+        nexus_repository_blob_name: "pypi-proxy-pypi.org"
+        nexus_repository_proxy_remote_url: "https://pypi.org"
+    - name: "Create npm proxy repositories"
+      ansible.builtin.include_role:
+        name: nexus_repository
+      vars:
+        nexus_repository_name: "npm-proxy-npmjs.org"
+        nexus_repository_state: "present"
+        nexus_repository_format: "npm"
+        nexus_repository_type: "proxy"
+        nexus_repository_repository_url: "{{ repository_url }}"
+        nexus_repository_repository_username: "{{ repository_username }}"
+        nexus_repository_repository_password: "{{ repository_password }}"
+        nexus_repository_blob_name: "npm-proxy-npmjs.org"
+        nexus_repository_proxy_remote_url: "https://registry.npmjs.org"
+    - name: "Create maven proxy repositories"
+      ansible.builtin.include_role:
+        name: nexus_repository
+      vars:
+        nexus_repository_name: "maven-proxy-central"
+        nexus_repository_state: "present"
+        nexus_repository_format: "maven"
+        nexus_repository_type: "proxy"
+        nexus_repository_repository_url: "{{ repository_url }}"
+        nexus_repository_repository_username: "{{ repository_username }}"
+        nexus_repository_repository_password: "{{ repository_password }}"
+        nexus_repository_blob_name: "maven-proxy-central"
+        nexus_repository_proxy_remote_url: "https://repo1.maven.org/maven2/"
+        nexus_repository_maven_layout_policy: "PERMISSIVE"
+    - name: "Create maven hosted repositories"
+      ansible.builtin.include_role:
+        name: nexus_repository
+      vars:
+        nexus_repository_name: "{{ item.name }}"
+        nexus_repository_state: "present"
+        nexus_repository_format: "maven"
+        nexus_repository_type: "hosted"
+        nexus_repository_write_policy: "{{ item.write_policy }}"
+        nexus_repository_repository_url: "{{ repository_url }}"
+        nexus_repository_repository_username: "{{ repository_username }}"
+        nexus_repository_repository_password: "{{ repository_password }}"
+        nexus_repository_blob_name: "{{ item.blob_name }}"
+        nexus_repository_maven_version_policy: "{{ item.maven_version_policy }}"
+      loop:
+        - {name: "maven-hosted-releases", blob_name: "maven-hosted-releases", write_policy: "deny", maven_version_policy: "RELEASE"}
+        - {name: "maven-hosted-snapshots", blob_name: "maven-hosted-snapshots", write_policy: "allow", maven_version_policy: "SNAPSHOT"}
+    - name: "Create npm proxy repositories"
+      ansible.builtin.include_role:
+        name: nexus_repository
+      vars:
+        nexus_repository_name: "maven-group-all"
+        nexus_repository_state: "present"
+        nexus_repository_format: "maven"
+        nexus_repository_type: "group"
+        nexus_repository_repository_url: "{{ repository_url }}"
+        nexus_repository_repository_username: "{{ repository_username }}"
+        nexus_repository_repository_password: "{{ repository_password }}"
+        nexus_repository_blob_name: "maven-group-all"
+        nexus_repository_group_member_names: ["maven-proxy-central", "maven-hosted-releases", "maven-hosted-snapshots"]
+        nexus_repository_maven_version_policy: "MIXED"
+        nexus_repository_maven_layout_policy: "PERMISSIVE"
