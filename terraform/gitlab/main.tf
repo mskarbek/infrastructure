@@ -188,6 +188,7 @@ locals {
     "gitlab",
     "gnome",
     "golang",
+    "graalvm",
     "grafana",
     "guacamole-server",
     "guacamole",
