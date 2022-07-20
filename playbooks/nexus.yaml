@@ -24,6 +24,7 @@
         - "nexus-maven-hosted-releases"
         - "nexus-maven-hosted-snapshots"
         - "nexus-maven-proxy-central"
+        - "nexus-maven-proxy-spring-release"
         - "nexus-npm-proxy-npmjs.org"
         - "nexus-oci-hosted-prd"
         - "nexus-pypi-proxy-pypi.org"
@@ -52,6 +53,7 @@
         - {name: "maven-hosted-releases", bucket_name: "nexus-maven-hosted-releases"}
         - {name: "maven-hosted-snapshots", bucket_name: "nexus-maven-hosted-snapshots"}
         - {name: "maven-proxy-central", bucket_name: "nexus-maven-proxy-central"}
+        - {name: "maven-proxy-spring-release", bucket_name: "nexus-maven-proxy-spring-release"}
         - {name: "npm-proxy-npmjs.org", bucket_name: "nexus-npm-proxy-npmjs.org"}
         - {name: "oci-hosted-prd", bucket_name: "nexus-oci-hosted-prd"}
         - {name: "pypi-proxy-pypi.org", bucket_name: "nexus-pypi-proxy-pypi.org"}
@@ -160,16 +162,19 @@
       ansible.builtin.include_role:
         name: nexus_repository
       vars:
-        nexus_repository_name: "maven-proxy-central"
+        nexus_repository_name: "{{ item.name }}"
         nexus_repository_state: "present"
         nexus_repository_format: "maven"
         nexus_repository_type: "proxy"
         nexus_repository_repository_url: "{{ repository_url }}"
         nexus_repository_repository_username: "{{ repository_username }}"
         nexus_repository_repository_password: "{{ repository_password }}"
-        nexus_repository_blob_name: "maven-proxy-central"
-        nexus_repository_proxy_remote_url: "https://repo1.maven.org/maven2/"
-        nexus_repository_maven_layout_policy: "PERMISSIVE"
+        nexus_repository_blob_name: "{{ item.blob_name }}"
+        nexus_repository_proxy_remote_url: "{{ item.proxy_remote_url }}"
+        nexus_repository_maven_layout_policy: "{{ item.maven_layout_policy }}"
+      loop:
+        - {name: "maven-proxy-central", blob_name: "maven-proxy-central", proxy_remote_url: "https://repo1.maven.org/maven2/", maven_layout_policy: "PERMISSIVE" }
+        - {name: "maven-proxy-spring-release", blob_name: "maven-proxy-spring-release", proxy_remote_url: "https://repo.spring.io/release/", maven_layout_policy: "STRICT" }
     - name: "Create maven hosted repositories"
       ansible.builtin.include_role:
         name: nexus_repository
