@@ -18,7 +18,7 @@ stages:
     # downlowad roles repo
     - ROLES_URL="${BASE_URL}/infrastructure/roles.git"
     - git clone ${ROLES_URL} ./roles
-    # downlowad roles repo\
+    # downlowad inventories repo\
     - INVENTORIES_URL="${BASE_URL}/infrastructure/inventories.git"
     - git clone ${INVENTORIES_URL} ./inventories
     # create ssh files
@@ -50,7 +50,7 @@ deploy-nexus:
      --env ANSIBLE_FORCE_COLOR=True\
      --volume $TMP_DIR:/root/.ssh:ro,z\
      --volume $(pwd):/root/workspace:z\
-     --workdir /root/workspace/ansible\
+     --workdir /root/workspace\
      --init\
      --rm $OCI_REGISTRY_URL/base/ansible:latest\
      ansible-playbook\
@@ -62,3 +62,26 @@ deploy-nexus:
   rules:
     changes:
       - nexus.yaml
+
+deploy-kuma-cp:
+  stage: deploy
+  tags:
+    - podman
+  <<: *before_script_ansible_content
+  script: |
+    podman run\
+     --env ANSIBLE_FORCE_COLOR=True\
+     --volume $TMP_DIR:/root/.ssh:ro,z\
+     --volume $(pwd):/root/workspace:z\
+     --workdir /root/workspace\
+     --init\
+     --rm $OCI_REGISTRY_URL/base/ansible:latest\
+     ansible-playbook\
+     --extra-vars "repository_url=${REPOSITORY_URL} repository_username=${REPOSITORY_USERNAME} repository_password=${REPOSITORY_PASSWORD}"\
+     --vault-password-file ~/.ssh/vault_pass\
+     -i inventories/inventory.inf.yaml\
+     kuma-cp.yaml
+  <<: *after_script_content
+  rules:
+    changes:
+      - kuma-cp.yaml
