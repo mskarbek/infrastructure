@@ -6,6 +6,6 @@
   ansible.builtin.include_tasks: "configure.yaml"
 - name: "Ensure Vector service has selected state"
   ansible.builtin.systemd:
-    name: "vector"
+    name: "vector.service"
     state: "{{ vector_service_state }}"
     enabled: "{{ vector_service_enabled }}"

@@ -404,7 +404,11 @@ image_default_format = "{{ podman_image_default_format }}"
 # engines run a builtin container using the pause executable. If you want override
 # specify an image to pull.
 #
+{% if podman_infra_image is defined %}
+infra_image = "{{ podman_infra_image }}"
+{% else %}
 #infra_image = ""
+{% endif %}
 
 # Specify the locking mechanism to use; valid values are "shm" and "file".
 # Change the default only if you are sure of what you are doing, in general

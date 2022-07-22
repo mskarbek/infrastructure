@@ -6,6 +6,6 @@
   ansible.builtin.include_tasks: "configure.yaml"
 - name: "Ensure Osquery service has selected state"
   ansible.builtin.systemd:
-    name: "osqueryd"
+    name: "osqueryd.service"
     state: "{{ osquery_service_state }}"
     enabled: "{{ osquery_service_enabled }}"

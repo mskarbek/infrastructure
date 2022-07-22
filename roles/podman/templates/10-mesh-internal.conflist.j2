@@ -1,0 +1,29 @@
+{
+    "cniVersion": "1.0.0",
+    "name": "mesh-internal",
+    "plugins": [
+        {
+            "type": "bridge",
+            "bridge": "cni0",
+            "isGateway": true,
+            "ipMasq": true,
+            "hirpinMode": true,
+            "ipam": {
+                "type": "host-local",
+                "subnet": "{{ podman_cni_subnet }}.0/25",
+                "gateway": "{{ podman_cni_subnet }}.126",
+                "routes": [
+                    {
+                        "dst": "172.16.0.0/12"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "firewall"
+        },
+        {
+            "type": "tuning"
+        }
+    ]
+}

@@ -1,1 +1,45 @@
 ---
+- name: "Remove vector examples"
+  ansible.builtin.file:
+    dest: "/etc/vector/examples"
+    state: absent
+- name: Create vector configuration dir
+  ansible.builtin.file:
+    state: "directory"
+    dest: "/etc/vector/{{ item }}"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+  loop:
+    - "sources"
+    - "transforms"
+    - "sinks"
+- name: Create vector configuration
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  loop:
+    - src: "vector"
+      dest: "/etc/default/vector"
+    - src: "vector.yaml"
+      dest: "/etc/vector/vector.yaml"
+    - src: "sources.host.yaml"
+      dest: "/etc/vector/sources/host.yaml"
+- name: "Create vector configuration"
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  loop:
+    - src: "sinks.prometheus.yaml.j2"
+      dest: "/etc/vector/sinks/prometheus.yaml"
+- name: "Enable vector systemd service"
+  ansible.builtin.systemd:
+    name: "vector.service"
+    enabled: true
+    state: restarted

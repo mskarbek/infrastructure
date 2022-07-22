@@ -3,6 +3,9 @@
   ansible.builtin.dnf:
     name:
       - "podman"
+      - "podman-docker"
+      - "skopeo"
       - "crun"
+      - "fuse-overlayfs"
       - "containernetworking-plugins"
     state: "{{ podman_packages_state }}"

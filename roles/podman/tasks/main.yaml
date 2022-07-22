@@ -4,3 +4,8 @@
   ansible.builtin.include_tasks: "setup.yaml"
 - name: "Configure Podman"
   ansible.builtin.include_tasks: "configure.yaml"
+- name: "Ensure Podman socket has selected state"
+  ansible.builtin.systemd:
+    name: "podman.socket"
+    state: "{{ podman_service_state }}"
+    enabled: "{{ podman_service_enabled }}"

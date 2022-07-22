@@ -1,7 +1,6 @@
 ---
 # storage.conf
 podman_storage_driver: "overlay"
-
 # containers.conf
 # valid options are: "k8s-file" and "journald"
 podman_log_driver: "k8s-file"
@@ -18,7 +17,10 @@ podman_events_logger: "journald"
 podman_image_default_format: "oci"
 podman_runtime: "crun"
 podman_volume_path: "/var/lib/containers/storage/volumes"
-
 # packages state - "present" to make sure it's instaled, "latest" if you want
 # to upgrade
 podman_packages_state: "present"
+# service state - "started" to make sure it's running, "restarted" if you want
+# to pick up new configuration
+podman_service_state: "started"
+podman_service_enabled: true

@@ -1,15 +1,34 @@
 ---
-- name: "Set storage configuration"
+- name: "Storage configuration"
   template:
     src: "storage.conf.j2"
     dest: "/etc/containers/storage.conf"
     owner: "root"
     group: "root"
     mode: "0644"
-- name: "Set containers configuration"
+- name: "Containers configuration"
   template:
     src: "containers.conf.j2"
     dest: "/etc/containers/containers.conf"
     owner: "root"
     group: "root"
     mode: "0644"
+- name: "Registries configuration"
+  ansible.builtin.template:
+    src: "010-registry.conf.j2"
+    dest: "/etc/containers/registries.conf.d/010-registry.conf"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+- name: "Network configuration"
+  ansible.builtin.template:
+    src: "{{ __podman_cni_conflist }}.j2"
+    dest: "/etc/cni/net.d/{{ __podman_cni_conflist }}"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  loop:
+    - 10-mesh-internal.conflist
+    - 11-mesh-external.conflist
+  loop_control:
+    loop_var: __podman_cni_conflist

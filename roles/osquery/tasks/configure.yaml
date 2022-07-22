@@ -2,7 +2,7 @@
 - name: "Set flags configuration"
   template:
     src: "osquery.flags.j2"
-    dest: "/etc/containers/storage.conf"
+    dest: "/etc/osquery/osquery.flags"
     owner: "root"
     group: "root"
     mode: "0644"
