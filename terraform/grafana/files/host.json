@@ -1,0 +1,31 @@
+{
+    "id": null,
+    "uid": "host-metrics",
+    "title": "host metrics",
+    "tags": [],
+    "style": "dark",
+    "timezone": "browser",
+    "editable": true,
+    "hideControls": false,
+    "graphTooltip": 1,
+    "panels": [],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "timepicker": {
+      "time_options": [],
+      "refresh_intervals": []
+    },
+    "templating": {
+      "list": []
+    },
+    "annotations": {
+      "list": []
+    },
+    "refresh": "30s",
+    "schemaVersion": 17,
+    "version": 0,
+    "links": []
+  }
+  

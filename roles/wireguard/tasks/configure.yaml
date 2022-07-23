@@ -1,0 +1,8 @@
+---
+- name: "Wireguard configuration"
+  template:
+    src: "wg.nmconnection.j2"
+    dest: "/etc/NetworkManager/system-connections/{{ wireguard_id }}-{{ wireguard_uuid }}.nmconnection"
+    owner: "root"
+    group: "root"
+    mode: "0600"

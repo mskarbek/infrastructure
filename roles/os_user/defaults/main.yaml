@@ -1,0 +1,7 @@
+---
+#os_user_name: none
+os_user_comment: "{{ os_user_name }}"
+os_user_group: "{{ os_user_name }}"
+os_user_groups: []
+os_user_authorized_keys: []
+os_user_sudo: false

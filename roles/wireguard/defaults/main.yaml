@@ -1,0 +1,4 @@
+---
+# packages state - "present" to make sure it's instaled, "latest" if you want
+# to upgrade
+wireguard_packages_state: "present"

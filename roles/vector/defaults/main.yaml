@@ -1,4 +1,5 @@
 ---
+vector_prometheus_exporter_port: "9100"
 # packages state - "present" to make sure it's instaled, "latest" if you want
 # to upgrade
 vector_packages_state: "present"

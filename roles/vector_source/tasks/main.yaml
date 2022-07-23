@@ -1,0 +1,8 @@
+---
+- name: "Create vector source configuration"
+  ansible.builtin.template:
+    src: "host.yaml.j2"
+    dest: "/etc/vector/sources/host.yaml"
+    owner: "root"
+    group: "root"
+    mode: "0644"

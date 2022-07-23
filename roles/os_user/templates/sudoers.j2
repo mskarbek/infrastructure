@@ -1,0 +1,5 @@
+{% if host_user_sudo == 'passwordless' %}
+{{ host_user_name }}	ALL=(ALL)	NOPASSWD: ALL
+{% elif host_user_sudo == 'password' %}
+{{ host_user_name }}	ALL=(ALL)	ALL
+{% endif %}

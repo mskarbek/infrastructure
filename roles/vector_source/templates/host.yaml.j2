@@ -1,0 +1,17 @@
+type: "host_metrics"
+collectors: 
+  - "cpu"
+  - "disk"
+  - "filesystem"
+  - "load"
+  - "host"
+  - "memory"
+  - "network"
+scrape_interval_secs: 10
+filesystem:
+  filesystems:
+    includes:
+      - "vfat"
+      - "xfs"
+      - "zfs"
+      - "overlay"

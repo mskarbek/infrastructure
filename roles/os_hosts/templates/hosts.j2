@@ -1,0 +1,5 @@
+127.0.0.1       localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1             localhost localhost.localdomain localhost6 localhost6.localdomain6
+{% for os_hosts_host in os_hosts_hosts %}
+{{ os_hosts_host.ip.ljust(15) }}{% for os_hosts_name in os_hosts_host.names %} {{ os_hosts_name }}{%endfor%}
+{% endfor %}

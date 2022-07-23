@@ -1,0 +1,16 @@
+---
+- name: "Install WireGuard"
+  ansible.builtin.include_tasks: "setup.yaml"
+- name: "Configure WireGuard"
+  ansible.builtin.include_tasks: "configure.yaml"
+- name: "Reload WireGuard configuration"
+  ansible.builtin.command:
+    cmd: "nmcli connection reload {{ wireguard_id }}"
+- name: "Down WireGuard connection"
+  ansible.builtin.command:
+    cmd: "nmcli connection down {{ wireguard_id }}"
+  when: (wireguard_state == 'stopped') or (wireguard_state == 'restarted')
+- name: "Up WireGuard connection"
+  ansible.builtin.command:
+    cmd: "nmcli connection up {{ wireguard_id }}"
+  when: (wireguard_state == 'started') or (wireguard_state == 'restarted')

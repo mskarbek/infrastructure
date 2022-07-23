@@ -1,0 +1,30 @@
+---
+argument_specs:
+  main:
+    short_description: "User configuration"
+    options:
+      host_user_name:
+        type: str
+        required: true
+        description: "User name"
+      host_user_comment:
+        type: str
+        required: false
+        description: "User comment"
+      host_user_group:
+        type: str
+        required: false
+        description: "User group"
+      host_user_groups:
+        type: list
+        required: false
+        description: "User groups"
+      host_user_authorized_keys:
+        type: list
+        required: false
+        description: "User authorized keys"
+      host_user_sudo:
+        type: str
+        choices: ["password", "passwordless"]
+        required: false
+        description: "User sudo configuration"

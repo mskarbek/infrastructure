@@ -1,0 +1,12 @@
+---
+- name: "Ensure WireGuard tools is installed"
+  ansible.builtin.dnf:
+    name:
+      - "wireguard-tools"
+    state: "{{ wireguard_packages_state }}"
+- name: "Ensure WireGuard kmod is installed"
+  ansible.builtin.dnf:
+    name:
+      - "kmod-wireguard"
+    state: "{{ wireguard_packages_state }}"
+  when: "'rhel8' in group_names"

@@ -1,0 +1,44 @@
+---
+- name: "Update rpm"
+  ansible.builtin.dnf:
+    name:
+      - "rpm"
+    state: "latest"
+- name: "Update dnf"
+  ansible.builtin.dnf:
+    name:
+      - "dnf"
+    state: "latest"
+- name: "Update all"
+  ansible.builtin.dnf:
+    name:
+      - "*"
+    exclude:
+      - "kernel*"
+      - "kmod*"
+      - "libnvpair*"
+      - "libuutil*"
+      - "libzfs*"
+      - "libzpool*"
+      - "zfs*"
+    state: "latest"
+- name: "Update Kernel"
+  ansible.builtin.dnf:
+    name:
+      - "kernel-core"
+      - "kernel-devel"
+      - "kernel-headers"
+    state: "latest"
+- name: "Update WireGuard"
+  ansible.builtin.dnf:
+    name:
+      - "kmod-wireguard"
+    state: "latest"
+  when: "'rhel8' in group_names"
+- name: "Update ZFS"
+  ansible.builtin.dnf:
+    name:
+      - "kmod-zfs"
+      - "zfs"
+    state: "latest"
+  when: "'zfs' in group_names"

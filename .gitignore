@@ -38,3 +38,4 @@ terraform.rc
 inventory.*.yaml
 playbooks/roles
 playbooks/inventories
+roles/old

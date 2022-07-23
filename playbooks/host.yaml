@@ -1,0 +1,121 @@
+---
+- hosts: all
+  gather_facts: false
+  tasks:
+    # Hostname
+    - name: "Configure hostname"
+      ansible.builtin.include_role:
+        name: os_hostname
+        apply:
+          tags: 
+            - hostname
+      vars:
+        os_hostname_hostname: "{{ inventory_hostname }}"
+      tags:
+        - never
+        - hostname
+    # Hosts
+    - name: "Configure hosts file"
+      ansible.builtin.include_role:
+        name: os_hosts
+        apply:
+          tags: 
+            - hosts
+      vars:
+        os_hosts_hosts: "{{ hosts_file }}"
+      tags:
+        - never
+        - hosts
+    # Update
+    - name: "Update OS"
+      ansible.builtin.include_role:
+        name: os_update
+        apply:
+          tags: 
+            - update
+      tags:
+        - never
+        - update
+    # Slices
+    - name: "Create monitoring slice"
+      ansible.builtin.include_role:
+        name: systemd_slice
+        apply:
+          tags: 
+            - slices
+      vars:
+        systemd_slice_name: "monitoring"
+        systemd_slice_description: "Monitoring Slice"
+        systemd_slice_services:
+          - "osquery"
+          - "vector"
+      tags:
+        - never
+        - slices
+    # WireGuard
+    - name: "Install WireGuard"
+      ansible.builtin.include_role:
+        name: wireguard
+        apply:
+          tags: 
+            - wireguard
+      vars:
+
+      tags:
+        - never
+        - wireguard
+    # Podman
+    - block:
+        - name: "Remove old CNI configuration"
+          ansible.builtin.file:
+            dest: "/etc/cni/net.d"
+            state: "absent"
+        - name: "Create CNI configuration direcotry"
+          ansible.builtin.file:
+            dest: "/etc/cni/net.d"
+            owner: "root"
+            group: "root"
+            mode: "0755"
+            state: "directory"
+        - name: "Install Podman"
+          ansible.builtin.include_role:
+            name: "podman"
+            apply:
+              tags:
+                - podman
+          vars:
+            podman_storage_driver: "zfs"
+            podman_log_driver: "journald"
+            podman_network_backend: "cni"
+            podman_default_network: "mesh-internal"
+            podman_compression_format: "zstd"
+            podman_volume_path: "/var/lib/volumes"
+            podman_cni_subnet: "{{ cni_subnet }}"
+            podman_oci_registry: "{{ oci_registry_url }}"
+      tags:
+        - never
+        - podman
+    # Osquery
+    - name: "Install Osquery"
+      ansible.builtin.include_role:
+        name: osquery
+        apply:
+          tags:
+            - osquery
+      vars:
+      tags:
+        - never
+        - osquery
+    # Vector
+    - name: "Install Vector"
+      ansible.builtin.include_role:
+        name: vector
+        apply:
+          tags:
+            - vector
+      vars:
+        vector_prometheus_exporter_ip: "{{ vector_exporter_ip }}"
+        vector_service_state: "stopped"
+      tags:
+        - never
+        - vector

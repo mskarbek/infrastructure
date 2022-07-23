@@ -1,0 +1,30 @@
+[connection]
+id={{ wireguard_id }}
+uuid={{ wireguard_uuid }}
+type=wireguard
+interface-name={{ wireguard_interface_name }}
+permissions=
+zone={{ wireguard_zone }}
+
+[wireguard]
+listen-port={{ wireguard_listen_port }}
+private-key={{ wireguard_private_key }}
+
+{% for __wireguard_peer in wireguard_peers %}
+[wireguard-peer.{{ __wireguard_peer.public_key }}]
+allowed-ips={{ __wireguard_peer.allowed_ips }}
+{% if __wireguard_peer.endpoint is defined %}endpoint={{ __wireguard_peer.endpoint }}{% endif %}
+{% endfor %}
+
+[ipv4]
+method=manual
+address1={{ wireguard_ipv4_address }}
+dns=
+dns-search=
+
+[ipv6]
+method=disabled
+addr-gen-mode=eui64
+dns-search=
+
+[proxy]

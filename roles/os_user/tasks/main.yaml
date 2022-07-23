@@ -1,0 +1,24 @@
+---
+- name: "Ensure group exists"
+  ansible.builtin.group:
+    name: "{{ os_user_group }}"
+    state: present
+- name: "Ensure user exists"
+  ansible.builtin.user:
+    name: "{{ os_user_name }}"
+    comment: "{{ os_user_comment }}"
+    group: "{{ os_user_group }}"
+    groups: "{{ os_user_groups }}"
+- name: "Ensure authorized keys are configured"
+  ansible.posix.authorized_key:
+    user: "{{ os_user_name }}"
+    key: "{{ __os_user_authorized_key }}"
+  loop: "{{ os_user_authorized_keys }}"
+  loop_control:
+    loop_var: __os_user_authorized_key
+  when: os_user_authorized_keys != []
+- name: "Ensure sudo is configured"
+  ansible.builtin.template:
+    src: "sudoers.j2"
+    dest: "/etc/sudoers.d/{{ os_user_name }}"
+  when: os_user_sudo

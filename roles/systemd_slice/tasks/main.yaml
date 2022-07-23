@@ -1,0 +1,38 @@
+---
+- name: "Create slice"
+  ansible.builtin.template:
+    src: "unit.slice.j2"
+    dest: "/etc/systemd/system/{{ systemd_slice_name }}.slice"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+- name: "Create service override directory"
+  ansible.builtin.file:
+    dest: "/etc/systemd/system/{{ __systemd_slice_service }}.service.d"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+    state: "directory"
+  loop: "{{ systemd_slice_services }}"
+  loop_control:
+    loop_var: __systemd_slice_service
+- name: "Attach services to the slice"
+  ansible.builtin.template:
+    src: "override.conf.j2"
+    dest: "/etc/systemd/system/{{ __systemd_slice_service }}.service.d/override.conf"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  loop: "{{ systemd_slice_services }}"
+  loop_control:
+    loop_var: __systemd_slice_service
+- name: "Reload systemd"
+  ansible.builtin.systemd:
+    daemon_reload: yes
+#- name: "Restart service"
+#  ansible.builtin.systemd:
+#    name: "{{ __systemd_slice_service }}"
+#    state: "restarted"
+#  loop: "{{ systemd_slice_services }}"
+#  loop_control:
+#    loop_var: __systemd_slice_service
