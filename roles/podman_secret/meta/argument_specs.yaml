@@ -1,20 +1,20 @@
 ---
 argument_specs:
   present:
-    short_description: Create podman secret
+    short_description: "Create podman secret"
     options:
-      secret_name:
-        type: str
+      podman_secret_name:
+        type: "str"
         required: true
-        description: Secret name
-      secret_data:
-        type: str
+        description: "Secret name"
+      podman_secret_data:
+        type: "str"
         required: true
-        description: Secret data
+        description: "Secret data"
   absent:
-    short_description: Destroy podman secret
+    short_description: "Destroy podman secret"
     options:
-      secret_name:
-        type: str
+      podman_secret_name:
+        type: "str"
         required: true
-        description: Secret name
+        description: "Secret name"

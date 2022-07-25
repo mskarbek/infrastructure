@@ -1,75 +1,81 @@
 ---
-- hosts: 10.8.0.22
+- hosts: alf
   gather_facts: false
   vars:
     service_name: service1
   tasks:
-    - name: Generate deployment id
+    - name: "Generate deployment id"
       ansible.builtin.include_role:
-        name: pod_id
-        tasks_from: get
-    - name: Deploy generic pod
-      ansible.builtin.include_role:
-        name: podman_pod
-        tasks_from: present
+        name: "pod_id"
+        tasks_from: "get"
       vars:
-        pod_name: "{{ future_pod_name }}"
-    - name: Deploy generic container
+        pod_id_env: "{{ env }}"
+        pod_id_consul_host: "{{ consul_host }}"
+        pod_id_service_name: "{{ service_name }}"
+    - name: "Deploy service1 pod"
       ansible.builtin.include_role:
-        name: podman_container
-        tasks_from: present
+        name: "podman_pod"
+        tasks_from: "present"
       vars:
-        container_name: "{{ future_app_container_name }}"
-        container_pod: "{{ future_pod_name }}"
-        container_image: "{{ oci_registry_url }}/services/service1:{{ image_tag }}"
-        container_command: ["sleep", "300"]
-        container_catatonit: true
-        container_secrets:
-          - container_secret_name: "some-secret"
-            container_secret_data: "test value 1"
-          - container_secret_name: "other-secret"
-            container_secret_data: "test value 2"
-            container_secret_target: "the-secret"
-        container_volumes:
-          - container_volume_mountpoint: /etc/fake-service
-            container_volume_type: local
-          - container_volume_mountpoint: /var/log/journald
-            container_volume_type: zfs
-    - name: Stop generic pod
+        podman_pod_name: "{{ future_pod_name }}"
+        podman_pod_network: "host"
+    - name: "Deploy service1 container"
+      ansible.builtin.include_role:
+        name: "podman_container"
+        tasks_from: "present"
+      vars:
+        podman_container_name: "{{ future_app_container_name }}"
+        podman_container_pod: "{{ future_pod_name }}"
+        podman_container_image: "{{ oci_registry_url }}/nginx:latest"
+        podman_container_catatonit: false
+        podman_container_network: "host"
+        podman_container_secrets:
+          - name: "some-secret"
+            data: "test value 1"
+        podman_container_volumes:
+          - mountpoint: /etc/fake-service
+            type: "zfs"
+          - mountpoint: /var/log/journald
+            type: "zfs"
+    - name: "Stop service1 pod"
       ansible.builtin.include_role:
         name: podman_pod
         tasks_from: stopped
       vars:
         pod_name: "{{ current_pod_name }}"
       when: current_pod_name is defined
-    - name: Start generic pod
+    - name: Start service1 pod
       ansible.builtin.include_role:
         name: podman_pod
         tasks_from: started
       vars:
-        pod_name: "{{ future_pod_name }}"
-    - name: Start generic container
+        podman_pod_name: "{{ future_pod_name }}"
+    - name: Start service1 container
       ansible.builtin.include_role:
         name: podman_container
         tasks_from: started
       vars:
-        container_name: "{{ future_app_container_name }}"
+        podman_container_name: "{{ future_app_container_name }}"
     - name: Save deployment id
       ansible.builtin.include_role:
         name: pod_id
         tasks_from: set
-    - name: Destroy generic container
+      vars:
+        pod_id_env: "{{ env }}"
+        pod_id_consul_host: "{{ consul_host }}"
+        pod_id_service_name: "{{ service_name }}"
+    - name: Destroy service1 container
       ansible.builtin.include_role:
         name: podman_container
         tasks_from: absent
       vars:
-        container_name: "{{ past_app_container_name }}"
+        podman_container_name: "{{ past_app_container_name }}"
         remove_volumes: false
       when: past_app_container_name is defined
-    - name: Destroy generic pod
+    - name: Destroy service1 pod
       ansible.builtin.include_role:
         name: podman_pod
         tasks_from: absent
       vars:
-        pod_name: "{{ past_pod_name }}"
+        podman_pod_name: "{{ past_pod_name }}"
       when: past_pod_name is defined

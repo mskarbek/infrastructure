@@ -1,19 +1,19 @@
 ---
-- name: Create zfs volume dataset
+- name: "Create zfs volume dataset"
   community.general.zfs:
-    name: "{{ zfs_pool }}/datafs/var/lib/volumes/{{ volume_name }}"
-    state: present
+    name: "{{ zfs_pool }}/datafs/var/lib/volumes/{{ podman_volume_name }}"
+    state: "present"
     extra_zfs_properties:
       mountpoint: legacy
 - name: Create zfs volume
   containers.podman.podman_volume:
     state: present
-    name: "{{ volume_name }}"
+    name: "{{ podman_volume_name }}"
     label:
-      mountpoint: "{{ volume_mountpoint }}"
-      type: "{{ volume_type }}"
+      mountpoint: "{{ podman_volume_mountpoint }}"
+      type: "{{ podman_volume_type }}"
     options:
-      - "device={{ zfs_pool }}/datafs/var/lib/volumes/{{ volume_name }}"
+      - "device={{ zfs_pool }}/datafs/var/lib/volumes/{{ podman_volume_name }}"
       - "type=zfs"
 - name: Copy files to zfs volume
   ansible.builtin.include_role:
@@ -21,7 +21,7 @@
   vars:
     src: "{{ copy_item.src }}"
     dest: "{{ copy_item.dest }}"
-  loop: "{{ volume_files.copy_files if volume_files.copy_files is defined and volume_files.copy_files is iterable else [] }}"
+  loop: "{{ podman_volume_files.copy_files if podman_volume_files.copy_files is defined and podman_volume_files.copy_files is iterable else [] }}"
   loop_control:
     loop_var: copy_item
 - name: Create files on zfs volume
@@ -30,6 +30,6 @@
   vars:
     src: "{{ template_item.src }}"
     dest: "{{ template_item.dest }}"
-  loop: "{{ volume_files.template_files if volume_files.template_files is defined and volume_files.template_files is iterable else [] }}"
+  loop: "{{ podman_volume_files.template_files if podman_volume_files.template_files is defined and podman_volume_files.template_files is iterable else [] }}"
   loop_control:
     loop_var: template_item

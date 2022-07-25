@@ -1,3 +1,6 @@
-{% if container_volumes is defined %}{% for item in container_volumes %}
-- {{ container_name + item.container_volume_mountpoint|replace('/', '-') }}:{{ item.container_volume_mountpoint }}:z
-{% endfor %}{% else %}[]{% endif %}
+{% if podman_container_volumes is defined %}{% for podman_container_volume in podman_container_volumes %}
+{% if podman_container_volume.global_mountpoint is defined %}
+- {{ podman_container_volume.global_name }}:{{ podman_container_volume.global_mountpoint }}:z
+{% else %}
+- {{ podman_container_name + podman_container_volume.mountpoint|replace('/', '-') }}:{{ podman_container_volume.mountpoint }}:z
+{% endif %}{% endfor %}{% else %}[]{% endif %}

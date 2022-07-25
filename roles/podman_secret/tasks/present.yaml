@@ -1,7 +1,7 @@
 ---
-- name: Create secret
+- name: "Create secret"
   containers.podman.podman_secret:
-    state: present
-    name: "{{ secret_name }}"
-    data: "{{ secret_data }}"
+    state: "present"
+    name: "{{ podman_secret_name }}"
+    data: "{{ podman_secret_data }}"
     skip_existing: true

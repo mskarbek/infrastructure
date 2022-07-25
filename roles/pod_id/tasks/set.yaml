@@ -1,20 +1,20 @@
 ---
-- name: Set remote past id
+- name: "Set remote past id"
   local_action:
     module: community.general.consul_kv
-    host: "{{ consul_host }}"
-    key: "{{ env + '/services/' + service_name + '/past_id' }}"
+    host: "{{ pod_id_consul_host }}"
+    key: "{{ pod_id_env + '/services/' + pod_id_service_name + '/past_id' }}"
     value: "{{ current_id }}"
   when: current_id != []
-- name: Set remote current id
+- name: "Set remote current id"
   local_action:
     module: community.general.consul_kv
-    host: "{{ consul_host }}"
-    key: "{{ env + '/services/' + service_name + '/current_id' }}"
+    host: "{{ pod_id_consul_host }}"
+    key: "{{ pod_id_env + '/services/' + pod_id_service_name + '/current_id' }}"
     value: "{{ future_id }}"
-- name: Clean remote future id
+- name: "Clean remote future id"
   local_action:
     module: community.general.consul_kv
-    host: "{{ consul_host }}"
-    key: "{{ env + '/services/' + service_name + '/future_id' }}"
-    state: absent
+    host: "{{ pod_id_consul_host }}"
+    key: "{{ pod_id_env + '/services/' + pod_id_service_name + '/future_id' }}"
+    state: "absent"

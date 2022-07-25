@@ -1,13 +1,17 @@
 ---
 argument_specs:
   main:
-    short_description: Generate deployment id
+    short_description: "Generate deployment id"
     options:
-      env:
-        type: str
+      pod_id_env:
+        type: "str"
         required: true
-        description: Environment
-      service_name:
-        type: str
+        description: "Environment"
+      pod_id_consul_host:
+        type: "str"
         required: true
-        description: Service name
+        description: "Consul host"
+      pod_id_service_name:
+        type: "str"
+        required: true
+        description: "Service name"

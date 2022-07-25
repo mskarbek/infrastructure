@@ -3,37 +3,41 @@ argument_specs:
   present:
     short_description: Create podman container
     options:
-      container_name:
+      podman_container_name:
         type: str
         required: true
         description: Container name
-      container_pod:
+      podman_container_pod:
         type: str
         required: false
         description: Container pod name
-      container_image:
+      podman_container_image:
         type: str
         required: true
         description: Container image
-      container_command:
+      podman_container_command:
         type: raw
         required: false
         description: Container command
-      container_catatonit:
+      podman_container_catatonit:
         type: bool
         required: true
         description: Container catatonit use
-      container_secrets:
+      podman_container_secrets:
         type: list
         elements: dict
         required: false
         description: List of container secrets
-      container_volumes:
+      podman_container_volumes:
         type: list
         elements: dict
         required: false
         description: List of container volumes
-      container_publis:
+      podman_container_network:
+        type: str
+        required: false
+        description: Container network
+      podman_container_publis:
         type: list
         elements: str
         required: false
@@ -41,7 +45,7 @@ argument_specs:
   absent:
     short_description: Destroy podman Container
     options:
-      container_name:
+      podman_container_name:
         type: str
         required: true
         description: Container name
@@ -52,14 +56,14 @@ argument_specs:
   started:
     short_description: Start podman Container
     options:
-      container_name:
+      podman_container_name:
         type: str
         required: true
         description: Container name
   stopped:
     short_description: Stop podman Container
     options:
-      container_name:
+      podman_container_name:
         type: str
         required: true
         description: Container name

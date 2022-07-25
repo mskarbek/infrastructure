@@ -1,59 +1,64 @@
 ---
-- name: Create podman secret
+- name: "Create podman secret"
   ansible.builtin.include_role:
     name: podman_secret
-    tasks_from: present
+    tasks_from: "present"
   vars:
-    secret_name: "{{ container_name + '-' + container_secret_item.container_secret_name }}"
-    secret_data: "{{ container_secret_item.container_secret_data }}"
-  loop: "{{ container_secrets if container_secrets is defined and container_secrets is iterable else [] }}"
-  when: container_secret_item.container_secret_name is defined
+    podman_secret_name: "{{ podman_container_name + '-' + __podman_container_secret.name }}"
+    podman_secret_data: "{{ __podman_container_secret.data }}"
+  when:
+    - __podman_container_secret.name is defined
+    - __podman_container_secret.data is defined
+  loop: "{{ podman_container_secrets if podman_container_secrets is defined and podman_container_secrets is iterable else [] }}"
   loop_control:
-    loop_var: container_secret_item
-- name: Print podman volume
+    loop_var: __podman_container_secret
+- name: "Print podman volume"
   ansible.builtin.debug:
     msg:
-      volume_name: "{{ container_name + container_volume_item.container_volume_mountpoint|replace('/', '-') }}"
-      volume_mountpoint: "{{ container_volume_item.container_volume_mountpoint }}"
-      volume_type: "{{ container_volume_item.container_volume_type }}"
-      volume_files: "{{ container_volume_item.container_volume_files if container_volume_item.container_volume_files is defined and container_volume_item.container_volume_files is iterable else {} }}"
-  loop: "{{ container_volumes if container_volumes is defined and container_volumes is iterable else [] }}"
+      podman_volume_name: "{{ podman_container_name + __podman_container_volume.mountpoint|replace('/', '-') }}"
+      podman_volume_mountpoint: "{{ __podman_container_volume.mountpoint }}"
+      podman_volume_type: "{{ __podman_container_volume.type }}"
+      podman_volume_files: "{{ __podman_container_volume.files if __podman_container_volume.files is defined and __podman_container_volume.files is iterable else {} }}"
+  loop: "{{ podman_container_volumes if podman_container_volumes is defined and podman_container_volumes is iterable else [] }}"
   loop_control:
-    loop_var: container_volume_item
+    loop_var: __podman_container_volume
   tags:
     - never
     - debug
-- name: Create podman volume
+- name: "Create podman volume"
   ansible.builtin.include_role:
     name: podman_volume
-    tasks_from: present
+    tasks_from: "present"
   vars:
-    volume_name: "{{ container_name + container_volume_item.container_volume_mountpoint|replace('/', '-') }}"
-    volume_mountpoint: "{{ container_volume_item.container_volume_mountpoint }}"
-    volume_type: "{{ container_volume_item.container_volume_type }}"
-    volume_files: "{{ container_volume_item.container_volume_files if container_volume_item.container_volume_files is defined and container_volume_item.container_volume_files is iterable else {} }}"
-  loop: "{{ container_volumes if container_volumes is defined and container_volumes is iterable else [] }}"
+    podman_volume_name: "{{ podman_container_name + __podman_container_volume.mountpoint|replace('/', '-') }}"
+    podman_volume_mountpoint: "{{ __podman_container_volume.mountpoint }}"
+    podman_volume_type: "{{ __podman_container_volume.type }}"
+    podman_volume_files: "{{ __podman_container_volume.files if __podman_container_volume.files is defined and __podman_container_volume.files is iterable else {} }}"
+  loop: "{{ podman_container_volumes if podman_container_volumes is defined and podman_container_volumes is iterable else [] }}"
   loop_control:
-    loop_var: container_volume_item
-- name: Create podman container
+    loop_var: __podman_container_volume
+
+- name: "Create podman container"
   containers.podman.podman_container:
-    state: created
-    name: "{{ container_name }}"
-    pod: "{{ container_pod }}"
-    conmon_pidfile: "/run/containers/pids/{{ container_name }}.pid"
-    image: "{{ container_image }}"
-    init: "{{ container_catatonit }}"
-    command: "{{ container_command if container_command is defined else [] }}"
-    mount: "{{ container_mount if container_mount is defined else [] }}"
+    state: "created"
+    name: "{{ podman_container_name }}"
+    pod: "{{ podman_container_pod }}"
+    conmon_pidfile: "/run/containers/pids/{{ podman_container_name }}.pid"
+    image: "{{ podman_container_image }}"
+    init: "{{ podman_container_catatonit }}"
+    command: "{{ podman_container_command if podman_container_command is defined else [] }}"
+    mount: "{{ podman_container_mount if podman_container_mount is defined else [] }}"
     secrets: "{{ lookup('template', 'present-secrets.yaml.j2') | from_yaml }}"
     volumes: "{{ lookup('template', 'present-volumes.yaml.j2') | from_yaml }}"
-    publish: "{{ container_publish if container_publish is defined else [] }}"
+    network: "{{ podman_container_network if podman_container_network is defined else '' }}"
+    publish: "{{ podman_container_publish if podman_container_publish is defined else [] }}"
     labels:
-      name.skarbek.lab.type: "{{ container_type if container_type is defined else 'app' }}"
-- name: Create podman container systemd service
+      name.skarbek.lab.type: "{{ podman_container_type if podman_container_type is defined else 'app' }}"
+
+- name: "Create podman container systemd service"
   ansible.builtin.include_role:
     name: podman_systemd_service
-    tasks_from: present
+    tasks_from: "present"
   vars:
-    systemd_service_name: "{{ container_name }}"
-    systemd_service_type: container
+    podman_systemd_service_name: "{{ podman_container_name }}"
+    podman_systemd_service_type: "container"

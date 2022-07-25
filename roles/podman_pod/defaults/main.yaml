@@ -1,2 +1,3 @@
 ---
-infra_image: k8s.gcr.io/pause:3.5
+podman_pod_infra_image: "k8s.gcr.io/pause:3.5"
+podman_pod_network: "podman"

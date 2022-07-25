@@ -1,12 +1,12 @@
 ---
-- name: Destroy podman pod
+- name: "Destroy podman pod"
   containers.podman.podman_pod:
-    state: absent
-    name: "{{ pod_name }}"
-- name: Destroy podman pod systemd service
+    state: "absent"
+    name: "{{ podman_pod_name }}"
+- name: "Destroy podman pod systemd service"
   ansible.builtin.include_role:
     name: podman_systemd_service
-    tasks_from: absent
+    tasks_from: "absent"
   vars:
-    systemd_service_name: "{{ pod_name }}"
-    systemd_service_type: pod
+    podman_systemd_service_name: "{{ podman_pod_name }}"
+    podman_systemd_service_type: "pod"

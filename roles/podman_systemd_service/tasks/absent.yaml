@@ -1,22 +1,22 @@
 ---
-- name: Disable podman service
+- name: "Disable podman service"
   ansible.builtin.systemd:
-    state: stopped
-    name: "{{ systemd_service_name }}.service"
+    state: "stopped"
+    name: "{{ podman_systemd_service_name }}.service"
     enabled: false
-- name: Destroy podman systemd service override
+- name: "Destroy podman systemd service override"
   ansible.builtin.file:
-    state: absent
-    dest: "/etc/systemd/system/{{ systemd_service_name }}.service.d"
+    state: "absent"
+    dest: "/etc/systemd/system/{{ podman_systemd_service_name }}.service.d"
   when: systemd_service_type == "pod"
-- name: Destroy podman systemd service
+- name: "Destroy podman systemd service"
   ansible.builtin.file:
-    state: absent
-    dest: "/etc/systemd/system/{{ systemd_service_name }}.service"
-- name: Reload systemd configuration
+    state: "absent"
+    dest: "/etc/systemd/system/{{ podman_systemd_service_name }}.service"
+- name: "Reload systemd configuration"
   ansible.builtin.systemd:
     daemon_reload: true
-- name: Drop failed podman systemd service state
+- name: "Drop failed podman systemd service state"
   ansible.builtin.command:
-    cmd: "systemctl reset-failed {{ systemd_service_name }}"
+    cmd: "systemctl reset-failed {{ podman_systemd_service_name }}"
   ignore_errors: true

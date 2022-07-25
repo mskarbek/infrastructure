@@ -1,7 +1,7 @@
 ---
-- name: Start podman service
+- name: "Start podman service"
   ansible.builtin.systemd:
-    state: started
+    state: "started"
     daemon_reload: true
-    name: "{{ systemd_service_name }}.service"
+    name: "{{ podman_systemd_service_name }}.service"
     enabled: true
